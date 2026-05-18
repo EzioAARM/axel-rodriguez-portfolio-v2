@@ -177,6 +177,23 @@ See `.agents` file at the repo root — it contains the complete OnceUI componen
 - El middleware excluye `/studio` — el Studio de Sanity maneja su propia autenticación
 - Rate limiting es in-memory: si en el futuro hay múltiples instancias (Vercel Functions concurrentes), migrar a Redis
 
+## Git Workflow
+
+- **Repo:** https://github.com/EzioAARM/axel-rodriguez-portfolio-v2.git
+- **Rama base de trabajo:** `develop`
+- **Todo el trabajo nuevo va en feature branches:** `git checkout -b feature/<nombre>` partiendo de `develop`
+- **Nunca hacer merge a `main`** — Axel lo revisa y hace el merge él mismo
+- **Nunca hacer push directo a `main` o `develop`**
+- Al terminar una feature, pushear la branch y avisar que está lista para revisión
+
+Flujo estándar:
+```bash
+git checkout develop && git pull
+git checkout -b feature/nombre-de-la-feature
+# ... trabajo ...
+git push -u origin feature/nombre-de-la-feature
+```
+
 ## Documentation Rules
 
 After every change, check if any of these need updating:
