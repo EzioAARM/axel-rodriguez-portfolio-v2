@@ -29,6 +29,9 @@ const RouteGuard: React.FC<RouteGuardProps> = ({ children }) => {
       const checkRouteEnabled = () => {
         if (!pathname) return false;
 
+        // Studio handles its own authentication — always allow
+        if (pathname.startsWith("/studio")) return true;
+
         if (pathname in routes) {
           return routes[pathname as keyof typeof routes];
         }
