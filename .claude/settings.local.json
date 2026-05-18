@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:docs.once-ui.com)",
+      "Bash(brew install *)",
+      "Bash(pdftotext /Users/ezioa/Downloads/Profile.pdf -)",
+      "WebSearch",
+      "Bash(gh api *)",
+      "Bash(npm search *)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(gh search *)",
+      "Bash(npm view *)",
+      "Bash(curl -s \"https://api.github.com/orgs/once-ui-system/repos\")",
+      "Bash(python3 -c \"import sys,json; data=json.load\\(sys.stdin\\); [print\\(r['name'], '-', r.get\\('description',''\\)\\) for r in data]\")",
+      "Bash(curl -s \"https://api.github.com/repos/once-ui-system/core/contents\")",
+      "Bash(python3 -c \"import sys,json; [print\\(r['name']\\) for r in json.load\\(sys.stdin\\)]\")",
+      "Bash(curl -s \"https://api.github.com/repos/once-ui-system/core/contents/packages\")",
+      "Bash(curl -s \"https://raw.githubusercontent.com/once-ui-system/core/main/.claude/CLAUDE.md\")",
+      "Bash(curl -s \"https://api.github.com/repos/once-ui-system/core/contents/.claude\")",
+      "Bash(python3 -c \"import sys,json; data=json.load\\(sys.stdin\\); [print\\(r['name'], r.get\\('download_url',''\\)\\) for r in \\(data if isinstance\\(data, list\\) else []\\)]\")",
+      "Bash(curl -s \"https://raw.githubusercontent.com/once-ui-system/core/main/README.md\")",
+      "Bash(curl -s \"https://api.github.com/repos/once-ui-system/cli/contents\")",
+      "Bash(curl -s \"https://raw.githubusercontent.com/once-ui-system/cli/main/README.md\")",
+      "Bash(curl -s -A \"Mozilla/5.0\" \"https://docs.once-ui.com/vibe-coding\")",
+      "Skill(update-config)"
+    ]
+  }
+}

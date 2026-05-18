@@ -1,91 +1,174 @@
-# Magic Portfolio
+# Axel Rodriguez — Portfolio
 
-Magic Portfolio is a simple, clean, beginner-friendly portfolio template. It supports an MDX-based content system for projects and blog posts, an about / CV page and a gallery.
+Personal portfolio website for Axel Alejandro Rodriguez Montenegro.  
+Senior Software Engineer | Cloud & DevOps | Guatemala.
 
-View the demo [here](https://demo.magic-portfolio.com).
+Built with [magic-portfolio](https://github.com/once-ui-system/magic-portfolio) (Next.js + Once UI) and [Sanity](https://sanity.io) as headless CMS.
 
-![Magic Portfolio](public/images/og/home.jpg)
+## Stack
 
-## Getting started
+- **Framework**: Next.js 16 + React 19 + TypeScript
+- **UI**: [Once UI](https://once-ui.com) (free tier)
+- **CMS**: Sanity v3 (hosted, free tier) — Studio at `/studio`
+- **Styling**: SCSS Modules + Once UI design tokens
 
-**1. Clone the repository**
-```
-git clone https://github.com/once-ui-system/magic-portfolio.git
-```
+## Prerequisites
 
-**2. Install dependencies**
-```
+- Node.js v18.17 or higher
+- A [Sanity](https://sanity.io) account (free)
+
+## Local Setup
+
+### 1. Install dependencies
+
+```bash
 npm install
 ```
 
-**3. Run dev server**
+### 2. Configure environment variables
+
+Copy the example file and fill in your values:
+
+```bash
+cp .env.example .env.local
 ```
+
+Required variables:
+
+```env
+# Sanity
+NEXT_PUBLIC_SANITY_PROJECT_ID=your_project_id
+NEXT_PUBLIC_SANITY_DATASET=production
+SANITY_API_TOKEN=your_api_token          # editor or admin token (server-side only)
+
+# Optional: password-protect specific pages
+PAGE_ACCESS_PASSWORD=your_password
+```
+
+Get your Sanity credentials from [sanity.io/manage](https://sanity.io/manage).
+
+### 3. Run the dev server
+
+```bash
 npm run dev
 ```
 
-**4. Edit config**
-```
-src/resources/once-ui.config.js
-```
+- Portfolio: [http://localhost:3000](http://localhost:3000)
+- Sanity Studio (CMS admin): [http://localhost:3000/studio](http://localhost:3000/studio)
 
-**5. Edit content**
-```
-src/resources/content.js
-```
+## Available Scripts
 
-**6. Create blog posts / projects**
-```
-Add a new .mdx file to src/app/blog/posts or src/app/work/projects
+```bash
+npm run dev          # dev server with hot reload
+npm run build        # production build
+npm run start        # serve production build
+npm run lint         # ESLint
+npm run biome-write  # format all files with Biome
 ```
 
-Magic Portfolio was built with [Once UI](https://once-ui.com) for [Next.js](https://nextjs.org). It requires Node.js v18.17+.
+## Project Structure
 
-## Documentation
+```
+/
+├── sanity.config.ts          # Sanity Studio configuration
+├── sanity.cli.ts             # Sanity CLI config (projectId, dataset)
+├── schemas/                  # Sanity content type definitions
+│   ├── index.ts              # Exports all schemas
+│   ├── singletons/           # Single-instance documents (siteConfig)
+│   ├── documents/            # Repeatable content types (posts, projects, etc.)
+│   └── objects/              # Reusable field groups (localeString, tag, etc.)
+└── src/
+    ├── app/                  # Next.js App Router pages
+    │   ├── page.tsx          # Home
+    │   ├── about/            # About — bio, experience, skills, certifications
+    │   ├── work/             # Projects
+    │   ├── blog/             # Blog
+    │   ├── gallery/          # Photography gallery
+    │   └── studio/           # Sanity Studio (admin panel)
+    ├── components/           # Shared UI components (built with Once UI)
+    ├── sanity/               # Sanity data access layer
+    │   ├── client.ts         # Sanity client
+    │   ├── queries.ts        # GROQ queries
+    │   ├── image.ts          # Image URL builder
+    │   └── types.ts          # TypeScript types from schemas
+    ├── resources/
+    │   ├── content.tsx       # Static content (migrated to Sanity progressively)
+    │   └── once-ui.config.ts # Theme, routes, fonts, visual effects
+    └── types/                # TypeScript type definitions
+```
 
-Docs available at: [docs.once-ui.com](https://docs.once-ui.com/docs/magic-portfolio/quick-start)
+## Content Management
 
-## Features
+All content is managed from the Sanity Studio at `/studio` (or [sanity.io/manage](https://sanity.io/manage)).
 
-### Once UI
-- All tokens, components & features of [Once UI](https://once-ui.com)
+### Content types
 
-### SEO
-- Automatic open-graph and X image generation with next/og
-- Automatic schema and metadata generation based on the content file
+| Type | Description |
+|---|---|
+| Site Config | Global info: name, bio, avatar, social links |
+| Work Experience | Employment history |
+| Education | Degrees and courses |
+| Skill | Technical skills with tags and images |
+| Certification | Professional certifications (AWS, GCP, etc.) |
+| Project | Portfolio projects (personal + professional) |
+| Blog Post | Articles — bilingual EN/ES, Portable Text |
+| Gallery Image | Photography with destination/theme tags |
 
-### Design
-- Responsive layout optimized for all screen sizes
-- Timeless design without heavy animations and motion
-- Endless customization options through [data attributes](https://once-ui.com/docs/theming)
+Every content item has a **Published** toggle. Unpublish to hide an item from the site without deleting it.
 
-### Content
-- Render sections conditionally based on the content file
-- Enable or disable pages for blog, work, gallery and about / CV
-- Generate and display social links automatically
-- Set up password protection for URLs
+### Bilingual content (EN/ES)
 
-### Localization
-- A localized, earlier version of Magic Portfolio is available with the next-intl library
-- To use localization, switch to the 'i18n' branch
+Fields marked as bilingual have separate EN and ES inputs in the Studio. The site defaults to English; Spanish is served when the user switches locale.
 
-## Creators
+## Theme Customization
 
-Lorant One: [Threads](https://www.threads.net/@lorant.one) / [LinkedIn](https://www.linkedin.com/in/lorant-one/)
+Edit `src/resources/once-ui.config.ts` to change colors, fonts, border style, and visual effects.  
+See [Once UI theming docs](https://docs.once-ui.com) for available tokens.
 
-## Get involved
+## Deploy
 
-- Join the Design Engineers Club on [Discord](https://discord.com/invite/5EyAQ4eNdS) and share your project with us!
-- Deployed your docs? Share it on the [Once UI Hub](https://once-ui.com/hub) too! We feature our favorite apps on our landing page.
+### Vercel (recommended)
+
+1. Push to GitHub
+2. Import the repo in [vercel.com](https://vercel.com)
+3. Add the environment variables from `.env.local`
+4. Deploy
+
+Once deployed, update `baseURL` in `src/resources/once-ui.config.ts` to your custom domain.
+
+## Security
+
+The following security measures are implemented out of the box:
+
+- **HTTP security headers** — X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, HSTS (via `next.config.mjs`)
+- **Password-protected routes** — enforced server-side in `src/middleware.ts` and client-side in `RouteGuard`
+- **Auth token** — HMAC-SHA256 of the password, not a guessable literal value
+- **Rate limiting** — 5 attempts per 15 minutes per IP on the auth endpoint
+- **Timing-safe comparison** — token verification uses constant-time comparison
+- **Image allowlist** — only `cdn.sanity.io` and `fonts.gstatic.com` are allowed as remote image sources
+- **OG image sanitization** — title parameter is stripped and truncated before rendering
+
+> Never prefix `SANITY_API_TOKEN` with `NEXT_PUBLIC_` — it would expose the token to the browser.
+
+## MCP Servers (for AI-assisted development)
+
+This project has three MCP servers configured for Claude Code:
+
+- **Context7** (project-level): live Once UI documentation
+- **next-devtools** (project-level): Next.js diagnostics, routes, and build info
+- **playwright** (project-level): browser automation and E2E testing
+- **Sanity** (user-level): query and manage Sanity content
+
+To configure the Sanity MCP after creating your project:
+```bash
+# For Claude Code
+claude mcp add Sanity -t http https://mcp.sanity.io/mcp --scope user
+
+# For VS Code / Cursor / Windsurf
+npx sanity@latest mcp configure
+```
 
 ## License
 
-Distributed under the CC BY-NC 4.0 License.
-- Attribution is required.
-- Commercial usage is not allowed.
-- You can extend the license to [Dopler CC](https://dopler.app/license) by purchasing a [Once UI Pro](https://once-ui.com/pricing) license.
-
-See `LICENSE.txt` for more information.
-
-## Deploy with Vercel
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fonce-ui-system%2Fmagic-portfolio&project-name=portfolio&repository-name=portfolio&redirect-url=https%3A%2F%2Fgithub.com%2Fonce-ui-system%2Fmagic-portfolio&demo-title=Magic%20Portfolio&demo-description=Showcase%20your%20designers%20or%20developer%20portfolio&demo-url=https%3A%2F%2Fdemo.magic-portfolio.com&demo-image=%2F%2Fraw.githubusercontent.com%2Fonce-ui-system%2Fmagic-portfolio%2Fmain%2Fpublic%2Fimages%2Fog%2Fhome.jpg)
+Based on [magic-portfolio](https://github.com/once-ui-system/magic-portfolio) — CC BY-NC 4.0.  
+Attribution required. Commercial use not allowed without a [Once UI Pro](https://once-ui.com/pricing) license.
