@@ -22,7 +22,20 @@
       "Bash(curl -s \"https://api.github.com/repos/once-ui-system/cli/contents\")",
       "Bash(curl -s \"https://raw.githubusercontent.com/once-ui-system/cli/main/README.md\")",
       "Bash(curl -s -A \"Mozilla/5.0\" \"https://docs.once-ui.com/vibe-coding\")",
-      "Skill(update-config)"
+      "Skill(update-config)",
+      "Bash(git checkout *)",
+      "Bash(git pull *)",
+      "Bash(npm install *)",
+      "Bash(npx tsc *)",
+      "Bash(node *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(npx playwright *)",
+      "Bash(mkdir -p \"\\(portfolio\\)/api/og/generate\")",
+      "Bash(mkdir -p '\\(portfolio\\)/about' '\\(portfolio\\)/work/[slug]' '\\(portfolio\\)/work/projects' '\\(portfolio\\)/blog/[slug]' '\\(portfolio\\)/blog/posts' '\\(portfolio\\)/gallery')",
+      "Bash(cp page.tsx \"\\(portfolio\\)/page.tsx\")",
+      "Bash(cp about/page.tsx \"\\(portfolio\\)/about/page.tsx\")",
+      "Bash(cp work/page.tsx \"\\(portfolio\\)/work/page.tsx\")"
     ]
   }
 }
