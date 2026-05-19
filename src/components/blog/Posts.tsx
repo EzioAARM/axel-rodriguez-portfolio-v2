@@ -1,6 +1,8 @@
-import { getPosts } from "@/utils/utils";
 import { Grid } from "@once-ui-system/core";
 import Post from "./Post";
+import { getBlogPosts, getSiteConfig } from "@/sanity/queries";
+import { urlForImage } from "@/sanity/image";
+import { l } from "@/sanity/locale";
 
 interface PostsProps {
   range?: [number] | [number, number];
@@ -10,37 +12,51 @@ interface PostsProps {
   exclude?: string[];
 }
 
-export function Posts({
+export async function Posts({
   range,
   columns = "1",
   thumbnail = false,
   exclude = [],
   direction,
 }: PostsProps) {
-  let allBlogs = getPosts(["src", "app", "blog", "posts"]);
+  const [allPosts, config] = await Promise.all([getBlogPosts(), getSiteConfig()]);
 
-  // Exclude by slug (exact match)
-  if (exclude.length) {
-    allBlogs = allBlogs.filter((post) => !exclude.includes(post.slug));
-  }
+  const authorName = config ? `${config.firstName} ${config.lastName}` : "";
+  const authorAvatarUrl = config?.avatar
+    ? urlForImage(config.avatar).width(80).height(80).url()
+    : "";
 
-  const sortedBlogs = allBlogs.sort((a, b) => {
-    return new Date(b.metadata.publishedAt).getTime() - new Date(a.metadata.publishedAt).getTime();
-  });
+  let filtered = exclude.length
+    ? allPosts.filter((p) => !exclude.includes(p.slug))
+    : allPosts;
 
-  const displayedBlogs = range
-    ? sortedBlogs.slice(range[0] - 1, range.length === 2 ? range[1] : sortedBlogs.length)
-    : sortedBlogs;
+  const displayed = range
+    ? filtered.slice(range[0] - 1, range.length === 2 ? (range as [number, number])[1] : filtered.length)
+    : filtered;
+
+  if (!displayed.length) return null;
+
+  const posts = displayed.map((p) => ({
+    slug: p.slug,
+    title: l(p.title),
+    summary: l(p.summary),
+    publishedAt: p.publishedAt,
+    coverImageUrl: p.coverImage ? urlForImage(p.coverImage).width(1200).height(675).url() : undefined,
+    tag: p.tags?.[0]?.label,
+  }));
 
   return (
-    <>
-      {displayedBlogs.length > 0 && (
-        <Grid columns={columns} s={{ columns: 1 }} fillWidth marginBottom="40" gap="16">
-          {displayedBlogs.map((post) => (
-            <Post key={post.slug} post={post} thumbnail={thumbnail} direction={direction} />
-          ))}
-        </Grid>
-      )}
-    </>
+    <Grid columns={columns} s={{ columns: 1 }} fillWidth marginBottom="40" gap="16">
+      {posts.map((post) => (
+        <Post
+          key={post.slug}
+          post={post}
+          authorName={authorName}
+          authorAvatarUrl={authorAvatarUrl}
+          thumbnail={thumbnail}
+          direction={direction}
+        />
+      ))}
+    </Grid>
   );
 }

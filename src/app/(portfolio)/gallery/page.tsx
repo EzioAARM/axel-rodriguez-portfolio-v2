@@ -1,6 +1,8 @@
 import { Flex, Meta, Schema } from "@once-ui-system/core";
 import GalleryView from "@/components/gallery/GalleryView";
 import { baseURL, gallery, person } from "@/resources";
+import { getGalleryImages, getSiteConfig } from "@/sanity/queries";
+import { urlForImage } from "@/sanity/image";
 
 export async function generateMetadata() {
   return Meta.generate({
@@ -12,7 +14,19 @@ export async function generateMetadata() {
   });
 }
 
-export default function Gallery() {
+export default async function Gallery() {
+  const [rawImages, config] = await Promise.all([getGalleryImages(), getSiteConfig()]);
+
+  const authorName = config ? `${config.firstName} ${config.lastName}` : person.name;
+  const authorAvatarUrl = config?.avatar
+    ? urlForImage(config.avatar).width(64).height(64).url()
+    : person.avatar;
+
+  const images = rawImages.map((img) => ({
+    ...img,
+    imageUrl: urlForImage(img.image).width(800).url(),
+  }));
+
   return (
     <Flex maxWidth="l">
       <Schema
@@ -23,12 +37,12 @@ export default function Gallery() {
         path={gallery.path}
         image={`/api/og/generate?title=${encodeURIComponent(gallery.title)}`}
         author={{
-          name: person.name,
+          name: authorName,
           url: `${baseURL}${gallery.path}`,
-          image: `${baseURL}${person.avatar}`,
+          image: authorAvatarUrl,
         }}
       />
-      <GalleryView />
+      <GalleryView images={images} />
     </Flex>
   );
 }

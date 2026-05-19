@@ -15,6 +15,8 @@ import { home, about, person, baseURL, routes } from "@/resources";
 import { Mailchimp } from "@/components";
 import { Projects } from "@/components/work/Projects";
 import { Posts } from "@/components/blog/Posts";
+import { getSiteConfig } from "@/sanity/queries";
+import { urlForImage } from "@/sanity/image";
 
 export async function generateMetadata() {
   return Meta.generate({
@@ -26,7 +28,13 @@ export async function generateMetadata() {
   });
 }
 
-export default function Home() {
+export default async function Home() {
+  const config = await getSiteConfig();
+  const authorName = config ? `${config.firstName} ${config.lastName}` : person.name;
+  const avatarUrl = config?.avatar
+    ? urlForImage(config.avatar).width(120).height(120).url()
+    : person.avatar;
+
   return (
     <Column maxWidth="m" gap="xl" paddingY="12" horizontal="center">
       <Schema
@@ -37,9 +45,9 @@ export default function Home() {
         description={home.description}
         image={`/api/og/generate?title=${encodeURIComponent(home.title)}`}
         author={{
-          name: person.name,
+          name: authorName,
           url: `${baseURL}${about.path}`,
-          image: `${baseURL}${person.avatar}`,
+          image: avatarUrl,
         }}
       />
       <Column fillWidth horizontal="center" gap="m">
@@ -90,7 +98,7 @@ export default function Home() {
                   <Avatar
                     marginRight="8"
                     style={{ marginLeft: "-0.75rem" }}
-                    src={person.avatar}
+                    src={avatarUrl}
                     size="m"
                   />
                 )}
@@ -124,7 +132,7 @@ export default function Home() {
         </Column>
       )}
       <Projects range={[2]} />
-      <Mailchimp />
+      {config?.showNewsletter && <Mailchimp />}
     </Column>
   );
 }
