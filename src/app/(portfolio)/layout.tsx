@@ -109,6 +109,7 @@ export default async function RootLayout({
       </head>
       <Providers>
         <Column
+          suppressHydrationWarning
           as="body"
           background="page"
           fillWidth
