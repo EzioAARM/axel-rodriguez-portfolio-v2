@@ -42,7 +42,11 @@ const TimeDisplay: React.FC<TimeDisplayProps> = ({ timeZone, locale = "en-GB" })
 
 export default TimeDisplay;
 
-export const Header = () => {
+interface HeaderProps {
+  showBlog?: boolean;
+}
+
+export const Header = ({ showBlog = true }: HeaderProps) => {
   const pathname = usePathname() ?? "";
 
   return (
@@ -128,7 +132,7 @@ export const Header = () => {
                   </Row>
                 </>
               )}
-              {routes["/blog"] && (
+              {routes["/blog"] && showBlog && (
                 <>
                   <Row s={{ hide: true }}>
                     <ToggleButton
