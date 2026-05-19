@@ -9,7 +9,7 @@ export const siteConfig = defineType({
   groups: [
     { name: "identity", title: "Identity", default: true },
     { name: "bio", title: "Bio" },
-    { name: "social", title: "Social links" },
+    { name: "contact", title: "Contact" },
     { name: "seo", title: "SEO" },
   ],
   fields: [
@@ -75,25 +75,15 @@ export const siteConfig = defineType({
       title: "Calendar / booking URL",
       type: "url",
       description: "e.g. cal.com link — shown as 'Schedule a call' button.",
-      group: "social",
+      group: "contact",
     }),
     defineField({
       name: "socialLinks",
       title: "Social links",
       type: "array",
-      of: [
-        {
-          type: "object",
-          fields: [
-            { name: "platform", title: "Platform", type: "string", validation: (Rule) => Rule.required() },
-            { name: "url", title: "URL", type: "url", validation: (Rule) => Rule.required() },
-            { name: "icon", title: "Icon name", type: "string", description: "Icon key from icons.ts (e.g. github, linkedin, email)" },
-            { name: "essential", title: "Show on About page", type: "boolean", initialValue: false },
-          ],
-          preview: { select: { title: "platform", subtitle: "url" } },
-        },
-      ],
-      group: "social",
+      of: [{ type: "reference", to: [{ type: "socialLink" }] }],
+      description: "Select from the Social Links you defined in the Social Links section. The 'Show on About page' flag on each link controls where it appears.",
+      group: "contact",
     }),
     defineField({
       name: "seoTitle",

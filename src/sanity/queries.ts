@@ -26,7 +26,15 @@ export async function getSiteConfig(): Promise<SiteConfig | null> {
       languages,
       bio,
       calendarUrl,
-      socialLinks,
+      "socialLinks": socialLinks[]->{
+        _id,
+        platform,
+        url,
+        icon,
+        label,
+        essential,
+        order
+      },
       seoTitle,
       seoDescription
     }`

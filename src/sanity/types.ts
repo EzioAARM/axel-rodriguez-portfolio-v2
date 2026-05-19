@@ -51,13 +51,6 @@ export interface ImageWithAlt {
 
 // ─── Site Config ─────────────────────────────────────────────────────────────
 
-export interface SocialLinkInline {
-  platform: string;
-  url: string;
-  icon?: string;
-  essential?: boolean;
-}
-
 export interface SiteConfig {
   _id: string;
   firstName: string;
@@ -69,7 +62,7 @@ export interface SiteConfig {
   languages?: string[];
   bio?: LocaleBlock;
   calendarUrl?: string;
-  socialLinks?: SocialLinkInline[];
+  socialLinks?: SocialLink[];
   seoTitle?: LocaleString;
   seoDescription?: LocaleText;
 }
