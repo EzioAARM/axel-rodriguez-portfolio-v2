@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import {
+  Button,
   Column,
   Flex,
   Icon,
@@ -25,8 +26,47 @@ interface GalleryViewProps {
 export default function GalleryView({ images }: GalleryViewProps) {
   const [selected, setSelected] = useState<ImageWithUrls | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [activeTag, setActiveTag] = useState<string | null>(null);
+  const [activeLocation, setActiveLocation] = useState<string | null>(null);
 
   const close = useCallback(() => setSelected(null), []);
+
+  const allTags = useMemo(
+    () =>
+      [...new Set(images.flatMap((img) => img.tags?.map((t) => t.label) ?? []))].sort(),
+    [images],
+  );
+
+  const filtered = useMemo(
+    () =>
+      images.filter((img) => {
+        const matchesTag = !activeTag || img.tags?.some((t) => t.label === activeTag);
+        const matchesLocation = !activeLocation || img.location === activeLocation;
+        return matchesTag && matchesLocation;
+      }),
+    [images, activeTag, activeLocation],
+  );
+
+  const applyTagFilter = useCallback(
+    (tag: string) => {
+      setActiveTag((prev) => (prev === tag ? null : tag));
+      close();
+    },
+    [close],
+  );
+
+  const applyLocationFilter = useCallback(
+    (location: string) => {
+      setActiveLocation((prev) => (prev === location ? null : location));
+      close();
+    },
+    [close],
+  );
+
+  const clearFilters = useCallback(() => {
+    setActiveTag(null);
+    setActiveLocation(null);
+  }, []);
 
   // Reset loader whenever a new image is opened
   useEffect(() => {
@@ -51,26 +91,75 @@ export default function GalleryView({ images }: GalleryViewProps) {
 
   if (!images.length) return null;
 
+  const hasActiveFilter = !!(activeTag || activeLocation);
   const hasMetadata = (img: ImageWithUrls) =>
     !!(l(img.caption) || img.location || img.dateTaken || img.tags?.length);
 
   return (
-    <>
-      <MasonryGrid columns={2} s={{ columns: 1 }}>
-        {images.map((image, index) => (
-          <Media
-            key={image._id}
-            priority={index < 10}
-            sizes="(max-width: 560px) 100vw, 50vw"
-            radius="m"
-            src={image.imageUrl}
-            alt={l(image.alt)}
-            style={{ cursor: "zoom-in" }}
-            onClick={() => setSelected(image)}
+    <Column fillWidth gap="l">
+      {/* ── Tag filter chips ── */}
+      {allTags.length > 0 && (
+        <Row wrap gap="8" paddingX="4">
+          <Button
+            size="s"
+            variant={hasActiveFilter ? "secondary" : "primary"}
+            label="All"
+            onClick={clearFilters}
           />
-        ))}
-      </MasonryGrid>
+          {allTags.map((tag) => (
+            <Button
+              key={tag}
+              size="s"
+              variant={activeTag === tag ? "primary" : "secondary"}
+              label={tag}
+              onClick={() => applyTagFilter(tag)}
+            />
+          ))}
+        </Row>
+      )}
 
+      {/* ── Active location chip ── */}
+      {activeLocation && (
+        <Row gap="8" vertical="center" paddingX="4">
+          <Icon name="globe" size="s" onBackground="neutral-weak" />
+          <Text variant="label-default-s" onBackground="neutral-weak">
+            {activeLocation}
+          </Text>
+          <IconButton
+            icon="x"
+            size="s"
+            variant="tertiary"
+            onClick={() => setActiveLocation(null)}
+            aria-label="Clear location filter"
+          />
+        </Row>
+      )}
+
+      {/* ── Grid ── */}
+      {filtered.length > 0 ? (
+        <MasonryGrid columns={2} s={{ columns: 1 }}>
+          {filtered.map((image, index) => (
+            <Media
+              key={image._id}
+              priority={index < 10}
+              sizes="(max-width: 560px) 100vw, 50vw"
+              radius="m"
+              src={image.imageUrl}
+              alt={l(image.alt)}
+              style={{ cursor: "zoom-in" }}
+              onClick={() => setSelected(image)}
+            />
+          ))}
+        </MasonryGrid>
+      ) : (
+        <Flex fillWidth paddingY="xl" horizontal="center">
+          <Text onBackground="neutral-weak" variant="body-default-m">
+            No photos match the selected filters.
+          </Text>
+        </Flex>
+      )}
+
+      {/* ── Lightbox ── */}
       {selected && (
         <Flex
           position="fixed"
@@ -124,7 +213,6 @@ export default function GalleryView({ images }: GalleryViewProps) {
                   <Spinner size="l" />
                 </Flex>
               )}
-              {/* Native img to control onLoad — Sanity CDN already optimizes */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 key={selected._id}
@@ -151,9 +239,19 @@ export default function GalleryView({ images }: GalleryViewProps) {
 
                 <Row gap="24" wrap>
                   {selected.location && (
-                    <Row gap="8" vertical="center">
-                      <Icon name="globe" size="s" onBackground="neutral-weak" />
-                      <Text variant="body-default-s" onBackground="neutral-weak">
+                    <Row
+                      gap="8"
+                      vertical="center"
+                      style={{ cursor: "pointer" }}
+                      title="Filter by location"
+                      onClick={() => applyLocationFilter(selected.location!)}
+                    >
+                      <Icon name="globe" size="s" onBackground="accent-weak" />
+                      <Text
+                        variant="body-default-s"
+                        onBackground="accent-weak"
+                        style={{ textDecoration: "underline" }}
+                      >
                         {selected.location}
                       </Text>
                     </Row>
@@ -175,7 +273,13 @@ export default function GalleryView({ images }: GalleryViewProps) {
                 {selected.tags && selected.tags.length > 0 && (
                   <Row wrap gap="8">
                     {selected.tags.map((tag) => (
-                      <Tag key={tag.label} size="s">
+                      <Tag
+                        key={tag.label}
+                        size="s"
+                        style={{ cursor: "pointer" }}
+                        title="Filter by tag"
+                        onClick={() => applyTagFilter(tag.label)}
+                      >
                         {tag.label}
                       </Tag>
                     ))}
@@ -186,6 +290,6 @@ export default function GalleryView({ images }: GalleryViewProps) {
           </Column>
         </Flex>
       )}
-    </>
+    </Column>
   );
 }
