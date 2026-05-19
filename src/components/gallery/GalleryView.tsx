@@ -9,6 +9,7 @@ import {
   MasonryGrid,
   Media,
   Row,
+  Spinner,
   Tag,
   Text,
 } from "@once-ui-system/core";
@@ -23,8 +24,14 @@ interface GalleryViewProps {
 
 export default function GalleryView({ images }: GalleryViewProps) {
   const [selected, setSelected] = useState<ImageWithUrls | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const close = useCallback(() => setSelected(null), []);
+
+  // Reset loader whenever a new image is opened
+  useEffect(() => {
+    if (selected) setIsLoading(true);
+  }, [selected?._id]);
 
   useEffect(() => {
     if (!selected) return;
@@ -35,10 +42,11 @@ export default function GalleryView({ images }: GalleryViewProps) {
     return () => window.removeEventListener("keydown", onKey);
   }, [selected, close]);
 
-  // prevent body scroll when lightbox is open
   useEffect(() => {
     document.body.style.overflow = selected ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [selected]);
 
   if (!images.length) return null;
@@ -97,21 +105,46 @@ export default function GalleryView({ images }: GalleryViewProps) {
               />
             </Row>
 
-            <Media
-              src={selected.highResUrl}
-              alt={l(selected.alt)}
-              sizes="100vw"
+            {/* Image with loader overlay */}
+            <Column
               radius="m"
-              style={{ maxHeight: "70vh", objectFit: "contain" }}
-            />
+              overflow="hidden"
+              style={{ position: "relative", minHeight: isLoading ? "300px" : undefined }}
+            >
+              {isLoading && (
+                <Flex
+                  center
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    zIndex: 1,
+                    background: "rgba(0,0,0,0.3)",
+                  }}
+                >
+                  <Spinner size="l" />
+                </Flex>
+              )}
+              {/* Native img to control onLoad — Sanity CDN already optimizes */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                key={selected._id}
+                src={selected.highResUrl}
+                alt={l(selected.alt)}
+                onLoad={() => setIsLoading(false)}
+                style={{
+                  display: "block",
+                  maxWidth: "100%",
+                  maxHeight: "70vh",
+                  objectFit: "contain",
+                  opacity: isLoading ? 0 : 1,
+                  transition: "opacity 0.3s ease",
+                  borderRadius: "var(--radius-m)",
+                }}
+              />
+            </Column>
 
             {hasMetadata(selected) && (
-              <Column
-                background="surface"
-                radius="m"
-                padding="m"
-                gap="s"
-              >
+              <Column background="surface" radius="m" padding="m" gap="s">
                 {l(selected.caption) && (
                   <Text variant="body-default-m">{l(selected.caption)}</Text>
                 )}
