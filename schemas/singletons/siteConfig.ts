@@ -11,6 +11,7 @@ export const siteConfig = defineType({
     { name: "bio", title: "Bio" },
     { name: "contact", title: "Contact" },
     { name: "seo", title: "SEO" },
+    { name: "settings", title: "Settings" },
   ],
   fields: [
     defineField({
@@ -96,6 +97,22 @@ export const siteConfig = defineType({
       title: "SEO description",
       type: "localeText",
       group: "seo",
+    }),
+    defineField({
+      name: "showBlog",
+      title: "Show Blog section",
+      type: "boolean",
+      initialValue: true,
+      description: "When disabled, the blog page shows no posts.",
+      group: "settings",
+    }),
+    defineField({
+      name: "showNewsletter",
+      title: "Show Newsletter section",
+      type: "boolean",
+      initialValue: false,
+      description: "Show the newsletter signup form on the home and blog pages.",
+      group: "settings",
     }),
   ],
   preview: {

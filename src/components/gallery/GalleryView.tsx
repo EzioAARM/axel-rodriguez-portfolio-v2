@@ -1,21 +1,27 @@
 "use client";
 
 import { Media, MasonryGrid } from "@once-ui-system/core";
-import { gallery } from "@/resources";
+import type { GalleryImage } from "@/sanity/types";
+import { l } from "@/sanity/locale";
 
-export default function GalleryView() {
+interface GalleryViewProps {
+  images: (GalleryImage & { imageUrl: string })[];
+}
+
+export default function GalleryView({ images }: GalleryViewProps) {
+  if (!images.length) return null;
+
   return (
     <MasonryGrid columns={2} s={{ columns: 1 }}>
-      {gallery.images.map((image, index) => (
+      {images.map((image, index) => (
         <Media
           enlarge
           priority={index < 10}
           sizes="(max-width: 560px) 100vw, 50vw"
-          key={index}
+          key={image._id}
           radius="m"
-          aspectRatio={image.orientation === "horizontal" ? "16 / 9" : "3 / 4"}
-          src={image.src}
-          alt={image.alt}
+          src={image.imageUrl}
+          alt={l(image.alt)}
         />
       ))}
     </MasonryGrid>

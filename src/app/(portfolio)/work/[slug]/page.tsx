@@ -1,135 +1,136 @@
 import { notFound } from "next/navigation";
-import { getPosts } from "@/utils/utils";
 import {
   Meta,
   Schema,
-  AvatarGroup,
   Button,
   Column,
-  Flex,
   Heading,
   Media,
   Text,
   SmartLink,
   Row,
-  Avatar,
   Line,
+  Tag,
 } from "@once-ui-system/core";
-import { baseURL, about, person, work } from "@/resources";
-import { formatDate } from "@/utils/formatDate";
-import { ScrollToHash, CustomMDX } from "@/components";
-import { Metadata } from "next";
+import { baseURL, about, work } from "@/resources";
+import { ScrollToHash } from "@/components";
+import { PortableTextRenderer } from "@/components/sanity/PortableTextRenderer";
 import { Projects } from "@/components/work/Projects";
+import { getProjectBySlug, getProjects, getSiteConfig } from "@/sanity/queries";
+import { urlForImage } from "@/sanity/image";
+import { l } from "@/sanity/locale";
+import { Metadata } from "next";
 
 export async function generateStaticParams(): Promise<{ slug: string }[]> {
-  const posts = getPosts(["src", "app", "work", "projects"]);
-  return posts.map((post) => ({
-    slug: post.slug,
-  }));
+  const projects = await getProjects();
+  return projects.map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string | string[] }>;
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const routeParams = await params;
-  const slugPath = Array.isArray(routeParams.slug)
-    ? routeParams.slug.join("/")
-    : routeParams.slug || "";
-
-  const posts = getPosts(["src", "app", "work", "projects"]);
-  let post = posts.find((post) => post.slug === slugPath);
-
-  if (!post) return {};
-
+  const { slug } = await params;
+  const project = await getProjectBySlug(slug);
+  if (!project) return {};
   return Meta.generate({
-    title: post.metadata.title,
-    description: post.metadata.summary,
+    title: l(project.title),
+    description: l(project.summary),
     baseURL: baseURL,
-    image: post.metadata.image || `/api/og/generate?title=${post.metadata.title}`,
-    path: `${work.path}/${post.slug}`,
+    image: project.coverImage
+      ? urlForImage(project.coverImage).width(1200).height(630).url()
+      : `/api/og/generate?title=${encodeURIComponent(l(project.title))}`,
+    path: `${work.path}/${project.slug}`,
   });
 }
 
 export default async function Project({
   params,
 }: {
-  params: Promise<{ slug: string | string[] }>;
+  params: Promise<{ slug: string }>;
 }) {
-  const routeParams = await params;
-  const slugPath = Array.isArray(routeParams.slug)
-    ? routeParams.slug.join("/")
-    : routeParams.slug || "";
+  const { slug } = await params;
+  const [project, config] = await Promise.all([getProjectBySlug(slug), getSiteConfig()]);
 
-  let post = getPosts(["src", "app", "work", "projects"]).find((post) => post.slug === slugPath);
+  if (!project) notFound();
 
-  if (!post) {
-    notFound();
-  }
+  const authorName = config ? `${config.firstName} ${config.lastName}` : "";
+  const authorAvatarUrl = config?.avatar
+    ? urlForImage(config.avatar).width(64).height(64).url()
+    : "";
 
-  const avatars =
-    post.metadata.team?.map((person) => ({
-      src: person.avatar,
-    })) || [];
+  const coverUrl = project.coverImage
+    ? urlForImage(project.coverImage).width(1600).height(900).url()
+    : null;
 
   return (
     <Column as="section" maxWidth="m" horizontal="center" gap="l">
       <Schema
         as="blogPosting"
         baseURL={baseURL}
-        path={`${work.path}/${post.slug}`}
-        title={post.metadata.title}
-        description={post.metadata.summary}
-        datePublished={post.metadata.publishedAt}
-        dateModified={post.metadata.publishedAt}
-        image={
-          post.metadata.image || `/api/og/generate?title=${encodeURIComponent(post.metadata.title)}`
-        }
+        path={`${work.path}/${project.slug}`}
+        title={l(project.title)}
+        description={l(project.summary)}
+        datePublished={project.startDate ?? ""}
+        dateModified={project.startDate ?? ""}
+        image={coverUrl ?? `/api/og/generate?title=${encodeURIComponent(l(project.title))}`}
         author={{
-          name: person.name,
+          name: authorName,
           url: `${baseURL}${about.path}`,
-          image: `${baseURL}${person.avatar}`,
+          image: authorAvatarUrl,
         }}
       />
+
       <Column maxWidth="s" gap="16" horizontal="center" align="center">
         <SmartLink href="/work">
           <Text variant="label-strong-m">Projects</Text>
         </SmartLink>
-        <Text variant="body-default-xs" onBackground="neutral-weak" marginBottom="12">
-          {post.metadata.publishedAt && formatDate(post.metadata.publishedAt)}
+        <Heading variant="display-strong-m">{l(project.title)}</Heading>
+        <Text variant="body-default-l" onBackground="neutral-weak" align="center">
+          {l(project.summary)}
         </Text>
-        <Heading variant="display-strong-m">{post.metadata.title}</Heading>
       </Column>
-      <Row marginBottom="32" horizontal="center">
-        <Row gap="16" vertical="center">
-          {post.metadata.team && <AvatarGroup reverse avatars={avatars} size="s" />}
-          <Text variant="label-default-m" onBackground="brand-weak">
-            {post.metadata.team?.map((member, idx) => (
-              <span key={idx}>
-                {idx > 0 && (
-                  <Text as="span" onBackground="neutral-weak">
-                    ,{" "}
-                  </Text>
-                )}
-                <SmartLink href={member.linkedIn}>{member.name}</SmartLink>
-              </span>
-            ))}
-          </Text>
+
+      {project.tags && project.tags.length > 0 && (
+        <Row gap="8" wrap horizontal="center">
+          {project.tags.map((tag) => (
+            <Tag key={tag.label} size="m">{tag.label}</Tag>
+          ))}
         </Row>
-      </Row>
-      {post.metadata.images.length > 0 && (
-        <Media priority aspectRatio="16 / 9" radius="m" alt="image" src={post.metadata.images[0]} />
       )}
-      <Column style={{ margin: "auto" }} as="article" maxWidth="xs">
-        <CustomMDX source={post.content} />
-      </Column>
+
+      {project.links && project.links.length > 0 && (
+        <Row gap="12" wrap horizontal="center">
+          {project.links.map((link) => (
+            <Button
+              key={link.url}
+              href={link.url}
+              variant="secondary"
+              size="s"
+              suffixIcon="externalLink"
+              label={link.label}
+            />
+          ))}
+        </Row>
+      )}
+
+      {coverUrl && (
+        <Media priority aspectRatio="16 / 9" radius="m" alt={l(project.title)} src={coverUrl} />
+      )}
+
+      {project.body?.en && project.body.en.length > 0 && (
+        <Column style={{ margin: "auto" }} as="article" maxWidth="xs">
+          <PortableTextRenderer value={project.body.en} />
+        </Column>
+      )}
+
       <Column fillWidth gap="40" horizontal="center" marginTop="40">
         <Line maxWidth="40" />
         <Heading as="h2" variant="heading-strong-xl" marginBottom="24">
           Related projects
         </Heading>
-        <Projects exclude={[post.slug]} range={[2]} />
+        <Projects exclude={[project.slug]} range={[1, 3]} />
       </Column>
       <ScrollToHash />
     </Column>

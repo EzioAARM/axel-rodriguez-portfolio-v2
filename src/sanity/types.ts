@@ -65,6 +65,8 @@ export interface SiteConfig {
   socialLinks?: SocialLink[];
   seoTitle?: LocaleString;
   seoDescription?: LocaleText;
+  showBlog?: boolean;
+  showNewsletter?: boolean;
 }
 
 // ─── Work Experience ─────────────────────────────────────────────────────────

@@ -1,74 +1,71 @@
 import { notFound } from "next/navigation";
-import { CustomMDX, ScrollToHash } from "@/components";
 import {
   Meta,
   Schema,
   Column,
   Heading,
   HeadingNav,
-  Icon,
   Row,
   Text,
   SmartLink,
   Avatar,
   Media,
   Line,
+  Tag,
 } from "@once-ui-system/core";
-import { baseURL, about, blog, person } from "@/resources";
+import { baseURL, about, blog } from "@/resources";
 import { formatDate } from "@/utils/formatDate";
-import { getPosts } from "@/utils/utils";
-import { Metadata } from "next";
-import React from "react";
+import { ScrollToHash } from "@/components";
+import { PortableTextRenderer } from "@/components/sanity/PortableTextRenderer";
 import { Posts } from "@/components/blog/Posts";
 import { ShareSection } from "@/components/blog/ShareSection";
+import { getBlogPostBySlug, getBlogPosts, getSiteConfig } from "@/sanity/queries";
+import { urlForImage } from "@/sanity/image";
+import { l } from "@/sanity/locale";
+import { Metadata } from "next";
 
 export async function generateStaticParams(): Promise<{ slug: string }[]> {
-  const posts = getPosts(["src", "app", "blog", "posts"]);
-  return posts.map((post) => ({
-    slug: post.slug,
-  }));
+  const posts = await getBlogPosts();
+  return posts.map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string | string[] }>;
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const routeParams = await params;
-  const slugPath = Array.isArray(routeParams.slug)
-    ? routeParams.slug.join("/")
-    : routeParams.slug || "";
-
-  const posts = getPosts(["src", "app", "blog", "posts"]);
-  let post = posts.find((post) => post.slug === slugPath);
-
+  const { slug } = await params;
+  const post = await getBlogPostBySlug(slug);
   if (!post) return {};
-
   return Meta.generate({
-    title: post.metadata.title,
-    description: post.metadata.summary,
+    title: l(post.title),
+    description: l(post.summary),
     baseURL: baseURL,
-    image: post.metadata.image || `/api/og/generate?title=${post.metadata.title}`,
+    image: post.coverImage
+      ? urlForImage(post.coverImage).width(1200).height(630).url()
+      : `/api/og/generate?title=${encodeURIComponent(l(post.title))}`,
     path: `${blog.path}/${post.slug}`,
   });
 }
 
-export default async function Blog({ params }: { params: Promise<{ slug: string | string[] }> }) {
-  const routeParams = await params;
-  const slugPath = Array.isArray(routeParams.slug)
-    ? routeParams.slug.join("/")
-    : routeParams.slug || "";
+export default async function BlogPost({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const [post, config] = await Promise.all([getBlogPostBySlug(slug), getSiteConfig()]);
 
-  let post = getPosts(["src", "app", "blog", "posts"]).find((post) => post.slug === slugPath);
+  if (!post) notFound();
 
-  if (!post) {
-    notFound();
-  }
+  const authorName = config ? `${config.firstName} ${config.lastName}` : "";
+  const authorAvatarUrl = config?.avatar
+    ? urlForImage(config.avatar).width(64).height(64).url()
+    : "";
 
-  const avatars =
-    post.metadata.team?.map((person) => ({
-      src: person.avatar,
-    })) || [];
+  const coverUrl = post.coverImage
+    ? urlForImage(post.coverImage).width(1200).height(675).url()
+    : null;
 
   return (
     <Row fillWidth>
@@ -79,51 +76,60 @@ export default async function Blog({ params }: { params: Promise<{ slug: string 
             as="blogPosting"
             baseURL={baseURL}
             path={`${blog.path}/${post.slug}`}
-            title={post.metadata.title}
-            description={post.metadata.summary}
-            datePublished={post.metadata.publishedAt}
-            dateModified={post.metadata.publishedAt}
-            image={
-              post.metadata.image ||
-              `/api/og/generate?title=${encodeURIComponent(post.metadata.title)}`
-            }
+            title={l(post.title)}
+            description={l(post.summary)}
+            datePublished={post.publishedAt}
+            dateModified={post.publishedAt}
+            image={coverUrl ?? `/api/og/generate?title=${encodeURIComponent(l(post.title))}`}
             author={{
-              name: person.name,
+              name: authorName,
               url: `${baseURL}${about.path}`,
-              image: `${baseURL}${person.avatar}`,
+              image: authorAvatarUrl,
             }}
           />
+
           <Column maxWidth="s" gap="16" horizontal="center" align="center">
             <SmartLink href="/blog">
               <Text variant="label-strong-m">Blog</Text>
             </SmartLink>
             <Text variant="body-default-xs" onBackground="neutral-weak" marginBottom="12">
-              {post.metadata.publishedAt && formatDate(post.metadata.publishedAt)}
+              {formatDate(post.publishedAt)}
             </Text>
-            <Heading variant="display-strong-m">{post.metadata.title}</Heading>
-            {post.metadata.subtitle && (
-              <Text 
-                variant="body-default-l" 
-                onBackground="neutral-weak" 
-                align="center"
-                style={{ fontStyle: 'italic' }}
-              >
-                {post.metadata.subtitle}
-              </Text>
-            )}
+            <Heading variant="display-strong-m">{l(post.title)}</Heading>
+            <Text
+              variant="body-default-l"
+              onBackground="neutral-weak"
+              align="center"
+              style={{ fontStyle: "italic" }}
+            >
+              {l(post.summary)}
+            </Text>
           </Column>
-          <Row marginBottom="32" horizontal="center">
+
+          {post.tags && post.tags.length > 0 && (
+            <Row gap="8" wrap horizontal="center">
+              {post.tags.map((tag) => (
+                <Tag key={tag.label} size="m">{tag.label}</Tag>
+              ))}
+            </Row>
+          )}
+
+          <Row marginBottom="8" horizontal="center">
             <Row gap="16" vertical="center">
-              <Avatar size="s" src={person.avatar} />
-              <Text variant="label-default-m" onBackground="brand-weak">
-                {person.name}
-              </Text>
+              {authorAvatarUrl && <Avatar size="s" src={authorAvatarUrl} />}
+              <Text variant="label-default-m" onBackground="brand-weak">{authorName}</Text>
+              {post.readingTimeMinutes && (
+                <Text variant="body-default-xs" onBackground="neutral-weak">
+                  {post.readingTimeMinutes} min read
+                </Text>
+              )}
             </Row>
           </Row>
-          {post.metadata.image && (
+
+          {coverUrl && (
             <Media
-              src={post.metadata.image}
-              alt={post.metadata.title}
+              src={coverUrl}
+              alt={l(post.title)}
               aspectRatio="16/9"
               priority
               sizes="(min-width: 768px) 100vw, 768px"
@@ -133,13 +139,16 @@ export default async function Blog({ params }: { params: Promise<{ slug: string 
               marginBottom="8"
             />
           )}
-          <Column as="article" maxWidth="s">
-            <CustomMDX source={post.content} />
-          </Column>
-          
-          <ShareSection 
-            title={post.metadata.title} 
-            url={`${baseURL}${blog.path}/${post.slug}`} 
+
+          {post.body?.en && post.body.en.length > 0 && (
+            <Column as="article" maxWidth="s">
+              <PortableTextRenderer value={post.body.en} />
+            </Column>
+          )}
+
+          <ShareSection
+            title={l(post.title)}
+            url={`${baseURL}${blog.path}/${post.slug}`}
           />
 
           <Column fillWidth gap="40" horizontal="center" marginTop="40">

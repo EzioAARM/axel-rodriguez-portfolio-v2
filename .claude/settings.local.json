@@ -35,7 +35,8 @@
       "Bash(mkdir -p '\\(portfolio\\)/about' '\\(portfolio\\)/work/[slug]' '\\(portfolio\\)/work/projects' '\\(portfolio\\)/blog/[slug]' '\\(portfolio\\)/blog/posts' '\\(portfolio\\)/gallery')",
       "Bash(cp page.tsx \"\\(portfolio\\)/page.tsx\")",
       "Bash(cp about/page.tsx \"\\(portfolio\\)/about/page.tsx\")",
-      "Bash(cp work/page.tsx \"\\(portfolio\\)/work/page.tsx\")"
+      "Bash(cp work/page.tsx \"\\(portfolio\\)/work/page.tsx\")",
+      "Bash(git show *)"
     ]
   }
 }

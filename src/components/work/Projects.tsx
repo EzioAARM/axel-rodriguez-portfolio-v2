@@ -1,43 +1,57 @@
-import { getPosts } from "@/utils/utils";
-import { Column } from "@once-ui-system/core";
+import { Column, Text } from "@once-ui-system/core";
 import { ProjectCard } from "@/components";
+import { getProjects } from "@/sanity/queries";
+import { urlForImage } from "@/sanity/image";
+import { l } from "@/sanity/locale";
 
 interface ProjectsProps {
   range?: [number, number?];
   exclude?: string[];
 }
 
-export function Projects({ range, exclude }: ProjectsProps) {
-  let allProjects = getPosts(["src", "app", "work", "projects"]);
+export async function Projects({ range, exclude }: ProjectsProps) {
+  let projects = await getProjects();
 
-  // Exclude by slug (exact match)
-  if (exclude && exclude.length > 0) {
-    allProjects = allProjects.filter((post) => !exclude.includes(post.slug));
+  if (exclude?.length) {
+    projects = projects.filter((p) => !exclude.includes(p.slug));
   }
 
-  const sortedProjects = allProjects.sort((a, b) => {
-    return new Date(b.metadata.publishedAt).getTime() - new Date(a.metadata.publishedAt).getTime();
-  });
+  const displayed = range
+    ? projects.slice(range[0] - 1, range[1] ?? projects.length)
+    : projects;
 
-  const displayedProjects = range
-    ? sortedProjects.slice(range[0] - 1, range[1] ?? sortedProjects.length)
-    : sortedProjects;
+  if (!displayed.length) {
+    return (
+      <Column fillWidth paddingY="xl" horizontal="center">
+        <Text onBackground="neutral-weak" variant="body-default-m">
+          No projects to show yet.
+        </Text>
+      </Column>
+    );
+  }
 
   return (
     <Column fillWidth gap="xl" marginBottom="40" paddingX="l">
-      {displayedProjects.map((post, index) => (
-        <ProjectCard
-          priority={index < 2}
-          key={post.slug}
-          href={`/work/${post.slug}`}
-          images={post.metadata.images}
-          title={post.metadata.title}
-          description={post.metadata.summary}
-          content={post.content}
-          avatars={post.metadata.team?.map((member) => ({ src: member.avatar })) || []}
-          link={post.metadata.link || ""}
-        />
-      ))}
+      {displayed.map((project, index) => {
+        const imageUrl = project.coverImage
+          ? urlForImage(project.coverImage).width(1600).height(900).url()
+          : "";
+        const primaryLink = project.links?.[0]?.url ?? "";
+
+        return (
+          <ProjectCard
+            priority={index < 2}
+            key={project.slug}
+            href={`/work/${project.slug}`}
+            images={imageUrl ? [imageUrl] : []}
+            title={l(project.title)}
+            description={l(project.summary)}
+            content={l(project.summary)}
+            avatars={[]}
+            link={primaryLink}
+          />
+        );
+      })}
     </Column>
   );
 }

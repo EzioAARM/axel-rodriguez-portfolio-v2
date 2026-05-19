@@ -36,7 +36,9 @@ export async function getSiteConfig(): Promise<SiteConfig | null> {
         order
       },
       seoTitle,
-      seoDescription
+      seoDescription,
+      showBlog,
+      showNewsletter
     }`
   );
 }
