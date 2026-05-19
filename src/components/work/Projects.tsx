@@ -21,6 +21,7 @@ export async function Projects({ range, exclude }: ProjectsProps) {
     : projects;
 
   if (!displayed.length) {
+    if (range) return null;
     return (
       <Column fillWidth paddingY="xl" horizontal="center">
         <Text onBackground="neutral-weak" variant="body-default-m">

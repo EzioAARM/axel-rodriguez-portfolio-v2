@@ -25,6 +25,7 @@ export default async function Gallery() {
   const images = rawImages.map((img) => ({
     ...img,
     imageUrl: urlForImage(img.image).width(800).url(),
+    highResUrl: urlForImage(img.image).width(2400).url(),
   }));
 
   return (
