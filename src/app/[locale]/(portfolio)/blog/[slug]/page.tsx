@@ -22,40 +22,46 @@ import { ShareSection } from "@/components/blog/ShareSection";
 import { getBlogPostBySlug, getBlogPosts, getSiteConfig } from "@/sanity/queries";
 import { urlForImage } from "@/sanity/image";
 import { l, lBlock } from "@/sanity/locale";
-import { DEFAULT_LOCALE, getT } from "@/i18n/translations";
+import { DEFAULT_LOCALE, LOCALES, Locale, getT } from "@/i18n/translations";
 import { Metadata } from "next";
 
-export async function generateStaticParams(): Promise<{ slug: string }[]> {
+export async function generateStaticParams() {
   const posts = await getBlogPosts();
-  return posts.map((p) => ({ slug: p.slug }));
+  return LOCALES.flatMap((locale) => posts.map((p) => ({ locale, slug: p.slug })));
 }
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
+  const { slug, locale: rawLocale } = await params;
+  const locale: Locale = (LOCALES as readonly string[]).includes(rawLocale)
+    ? (rawLocale as Locale)
+    : DEFAULT_LOCALE;
   const post = await getBlogPostBySlug(slug);
   if (!post) return {};
   return Meta.generate({
-    title: l(post.title),
-    description: l(post.summary),
+    title: l(post.title, locale),
+    description: l(post.summary, locale),
     baseURL: baseURL,
     image: post.coverImage
       ? urlForImage(post.coverImage).width(1200).height(630).url()
-      : `/api/og/generate?title=${encodeURIComponent(l(post.title))}`,
+      : `/api/og/generate?title=${encodeURIComponent(l(post.title, locale))}`,
     path: `${blog.path}/${post.slug}`,
   });
 }
 
-export default async function BlogPost({
+export default async function LocaleBlogPost({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }) {
-  const { slug } = await params;
-  const locale = DEFAULT_LOCALE;
+  const { slug, locale: rawLocale } = await params;
+  const locale: Locale = (LOCALES as readonly string[]).includes(rawLocale)
+    ? (rawLocale as Locale)
+    : DEFAULT_LOCALE;
+
   const t = getT(locale);
   const [post, config] = await Promise.all([getBlogPostBySlug(slug), getSiteConfig()]);
 
@@ -79,11 +85,11 @@ export default async function BlogPost({
             as="blogPosting"
             baseURL={baseURL}
             path={`${blog.path}/${post.slug}`}
-            title={l(post.title)}
-            description={l(post.summary)}
+            title={l(post.title, locale)}
+            description={l(post.summary, locale)}
             datePublished={post.publishedAt}
             dateModified={post.publishedAt}
-            image={coverUrl ?? `/api/og/generate?title=${encodeURIComponent(l(post.title))}`}
+            image={coverUrl ?? `/api/og/generate?title=${encodeURIComponent(l(post.title, locale))}`}
             author={{
               name: authorName,
               url: `${baseURL}${about.path}`,
@@ -92,20 +98,20 @@ export default async function BlogPost({
           />
 
           <Column maxWidth="s" gap="16" horizontal="center" align="center">
-            <SmartLink href="/blog">
+            <SmartLink href={`/${locale}${blog.path}`}>
               <Text variant="label-strong-m">{t.nav.blog}</Text>
             </SmartLink>
             <Text variant="body-default-xs" onBackground="neutral-weak" marginBottom="12">
               {formatDate(post.publishedAt)}
             </Text>
-            <Heading variant="display-strong-m">{l(post.title)}</Heading>
+            <Heading variant="display-strong-m">{l(post.title, locale)}</Heading>
             <Text
               variant="body-default-l"
               onBackground="neutral-weak"
               align="center"
               style={{ fontStyle: "italic" }}
             >
-              {l(post.summary)}
+              {l(post.summary, locale)}
             </Text>
           </Column>
 
@@ -132,7 +138,7 @@ export default async function BlogPost({
           {coverUrl && (
             <Media
               src={coverUrl}
-              alt={l(post.title)}
+              alt={l(post.title, locale)}
               aspectRatio="16/9"
               priority
               sizes="(min-width: 768px) 100vw, 768px"
@@ -150,7 +156,7 @@ export default async function BlogPost({
           )}
 
           <ShareSection
-            title={l(post.title)}
+            title={l(post.title, locale)}
             url={`${baseURL}${blog.path}/${post.slug}`}
           />
 
@@ -159,7 +165,7 @@ export default async function BlogPost({
             <Text as="h2" id="recent-posts" variant="heading-strong-xl" marginBottom="24">
               {t.blog.recentPosts}
             </Text>
-            <Posts exclude={[post.slug]} range={[1, 2]} columns="2" thumbnail direction="column" />
+            <Posts exclude={[post.slug]} range={[1, 2]} columns="2" thumbnail direction="column" locale={locale} />
           </Column>
           <ScrollToHash />
         </Column>

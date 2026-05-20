@@ -3,7 +3,11 @@ import GalleryView from "@/components/gallery/GalleryView";
 import { baseURL, gallery, person } from "@/resources";
 import { getGalleryImages, getSiteConfig } from "@/sanity/queries";
 import { urlForImage } from "@/sanity/image";
-import { DEFAULT_LOCALE, getT } from "@/i18n/translations";
+import { DEFAULT_LOCALE, LOCALES, Locale, getT } from "@/i18n/translations";
+
+export function generateStaticParams() {
+  return LOCALES.map((locale) => ({ locale }));
+}
 
 export async function generateMetadata() {
   return Meta.generate({
@@ -15,8 +19,16 @@ export async function generateMetadata() {
   });
 }
 
-export default async function Gallery() {
-  const locale = DEFAULT_LOCALE;
+export default async function LocaleGallery({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale: rawLocale } = await params;
+  const locale: Locale = (LOCALES as readonly string[]).includes(rawLocale)
+    ? (rawLocale as Locale)
+    : DEFAULT_LOCALE;
+
   const t = getT(locale);
 
   const [rawImages, config] = await Promise.all([getGalleryImages(), getSiteConfig()]);

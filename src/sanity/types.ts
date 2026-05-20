@@ -51,6 +51,11 @@ export interface ImageWithAlt {
 
 // ─── Site Config ─────────────────────────────────────────────────────────────
 
+export interface Stat {
+  value: string;
+  label: LocaleString;
+}
+
 export interface SiteConfig {
   _id: string;
   firstName: string;
@@ -61,12 +66,24 @@ export interface SiteConfig {
   location: string;
   languages?: string[];
   bio?: LocaleBlock;
+  headline?: LocaleString;
+  subline?: LocaleString;
   calendarUrl?: string;
   socialLinks?: SocialLink[];
+  stats?: Stat[];
   seoTitle?: LocaleString;
   seoDescription?: LocaleText;
   showBlog?: boolean;
   showNewsletter?: boolean;
+}
+
+export interface Service {
+  _id: string;
+  title: LocaleString;
+  description: LocaleString;
+  icon?: string;
+  published: boolean;
+  order?: number;
 }
 
 // ─── Work Experience ─────────────────────────────────────────────────────────

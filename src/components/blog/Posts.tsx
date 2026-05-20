@@ -3,6 +3,7 @@ import Post from "./Post";
 import { getBlogPosts, getSiteConfig } from "@/sanity/queries";
 import { urlForImage } from "@/sanity/image";
 import { l } from "@/sanity/locale";
+import { DEFAULT_LOCALE, Locale } from "@/i18n/translations";
 
 interface PostsProps {
   range?: [number] | [number, number];
@@ -10,6 +11,7 @@ interface PostsProps {
   thumbnail?: boolean;
   direction?: "row" | "column";
   exclude?: string[];
+  locale?: Locale;
 }
 
 export async function Posts({
@@ -18,6 +20,7 @@ export async function Posts({
   thumbnail = false,
   exclude = [],
   direction,
+  locale = DEFAULT_LOCALE,
 }: PostsProps) {
   const [allPosts, config] = await Promise.all([getBlogPosts(), getSiteConfig()]);
 
@@ -38,8 +41,8 @@ export async function Posts({
 
   const posts = displayed.map((p) => ({
     slug: p.slug,
-    title: l(p.title),
-    summary: l(p.summary),
+    title: l(p.title, locale),
+    summary: l(p.summary, locale),
     publishedAt: p.publishedAt,
     coverImageUrl: p.coverImage ? urlForImage(p.coverImage).width(1200).height(675).url() : undefined,
     tag: p.tags?.[0]?.label,

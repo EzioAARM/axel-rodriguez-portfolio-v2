@@ -5,13 +5,15 @@ import { useEffect, useState } from "react";
 
 import { Fade, Flex, Line, Row, ToggleButton } from "@once-ui-system/core";
 
-import { routes, display, person, about, blog, work, gallery } from "@/resources";
+import { routes, display, person } from "@/resources";
 import { ThemeToggle } from "./ThemeToggle";
+import { LanguageSwitcher } from "./LanguageSwitcher";
+import { getT, DEFAULT_LOCALE, Locale, LOCALES } from "@/i18n/translations";
 import styles from "./Header.module.scss";
 
 type TimeDisplayProps = {
   timeZone: string;
-  locale?: string; // Optionally allow locale, defaulting to 'en-GB'
+  locale?: string;
 };
 
 const TimeDisplay: React.FC<TimeDisplayProps> = ({ timeZone, locale = "en-GB" }) => {
@@ -44,10 +46,22 @@ export default TimeDisplay;
 
 interface HeaderProps {
   showBlog?: boolean;
+  locale?: Locale;
 }
 
-export const Header = ({ showBlog = true }: HeaderProps) => {
+export const Header = ({ showBlog = true, locale = DEFAULT_LOCALE }: HeaderProps) => {
   const pathname = usePathname() ?? "";
+  const t = getT(locale);
+
+  // Prefix nav hrefs with locale when not on the default locale
+  const prefix = locale !== DEFAULT_LOCALE ? `/${locale}` : "";
+
+  // Strip locale prefix from pathname to determine active route
+  let basePath = pathname;
+  for (const loc of LOCALES) {
+    if (pathname === `/${loc}`) { basePath = "/"; break; }
+    if (pathname.startsWith(`/${loc}/`)) { basePath = pathname.slice(`/${loc}`.length); break; }
+  }
 
   return (
     <>
@@ -91,7 +105,7 @@ export const Header = ({ showBlog = true }: HeaderProps) => {
           >
             <Row gap="4" vertical="center" textVariant="body-default-s" suppressHydrationWarning>
               {routes["/"] && (
-                <ToggleButton prefixIcon="home" href="/" selected={pathname === "/"} />
+                <ToggleButton prefixIcon="home" href={prefix || "/"} selected={basePath === "/"} />
               )}
               <Line background="neutral-alpha-medium" vert maxHeight="24" />
               {routes["/about"] && (
@@ -99,16 +113,16 @@ export const Header = ({ showBlog = true }: HeaderProps) => {
                   <Row s={{ hide: true }}>
                     <ToggleButton
                       prefixIcon="person"
-                      href="/about"
-                      label={about.label}
-                      selected={pathname === "/about"}
+                      href={`${prefix}/about`}
+                      label={t.nav.about}
+                      selected={basePath === "/about"}
                     />
                   </Row>
                   <Row hide s={{ hide: false }}>
                     <ToggleButton
                       prefixIcon="person"
-                      href="/about"
-                      selected={pathname === "/about"}
+                      href={`${prefix}/about`}
+                      selected={basePath === "/about"}
                     />
                   </Row>
                 </>
@@ -118,16 +132,16 @@ export const Header = ({ showBlog = true }: HeaderProps) => {
                   <Row s={{ hide: true }}>
                     <ToggleButton
                       prefixIcon="grid"
-                      href="/work"
-                      label={work.label}
-                      selected={pathname.startsWith("/work")}
+                      href={`${prefix}/work`}
+                      label={t.nav.work}
+                      selected={basePath.startsWith("/work")}
                     />
                   </Row>
                   <Row hide s={{ hide: false }}>
                     <ToggleButton
                       prefixIcon="grid"
-                      href="/work"
-                      selected={pathname.startsWith("/work")}
+                      href={`${prefix}/work`}
+                      selected={basePath.startsWith("/work")}
                     />
                   </Row>
                 </>
@@ -137,16 +151,16 @@ export const Header = ({ showBlog = true }: HeaderProps) => {
                   <Row s={{ hide: true }}>
                     <ToggleButton
                       prefixIcon="book"
-                      href="/blog"
-                      label={blog.label}
-                      selected={pathname.startsWith("/blog")}
+                      href={`${prefix}/blog`}
+                      label={t.nav.blog}
+                      selected={basePath.startsWith("/blog")}
                     />
                   </Row>
                   <Row hide s={{ hide: false }}>
                     <ToggleButton
                       prefixIcon="book"
-                      href="/blog"
-                      selected={pathname.startsWith("/blog")}
+                      href={`${prefix}/blog`}
+                      selected={basePath.startsWith("/blog")}
                     />
                   </Row>
                 </>
@@ -156,16 +170,16 @@ export const Header = ({ showBlog = true }: HeaderProps) => {
                   <Row s={{ hide: true }}>
                     <ToggleButton
                       prefixIcon="gallery"
-                      href="/gallery"
-                      label={gallery.label}
-                      selected={pathname.startsWith("/gallery")}
+                      href={`${prefix}/gallery`}
+                      label={t.nav.gallery}
+                      selected={basePath.startsWith("/gallery")}
                     />
                   </Row>
                   <Row hide s={{ hide: false }}>
                     <ToggleButton
                       prefixIcon="gallery"
-                      href="/gallery"
-                      selected={pathname.startsWith("/gallery")}
+                      href={`${prefix}/gallery`}
+                      selected={basePath.startsWith("/gallery")}
                     />
                   </Row>
                 </>
@@ -176,6 +190,8 @@ export const Header = ({ showBlog = true }: HeaderProps) => {
                   <ThemeToggle />
                 </>
               )}
+              <Line background="neutral-alpha-medium" vert maxHeight="24" />
+              <LanguageSwitcher locale={locale} />
             </Row>
           </Row>
         </Row>

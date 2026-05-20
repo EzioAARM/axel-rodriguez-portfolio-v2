@@ -11,6 +11,7 @@ Built with [magic-portfolio](https://github.com/once-ui-system/magic-portfolio) 
 - **UI**: [Once UI](https://once-ui.com) (free tier)
 - **CMS**: Sanity v3 (hosted, free tier) — Studio at `/studio`
 - **Styling**: SCSS Modules + Once UI design tokens
+- **Fonts**: Chalet (headings) + Space Mono (display) + Inter (body)
 
 ## Prerequisites
 
@@ -75,27 +76,51 @@ npm run biome-write  # format all files with Biome
 ├── schemas/                  # Sanity content type definitions
 │   ├── index.ts              # Exports all schemas
 │   ├── singletons/           # Single-instance documents (siteConfig)
-│   ├── documents/            # Repeatable content types (posts, projects, etc.)
+│   ├── documents/            # Repeatable content types
 │   └── objects/              # Reusable field groups (localeString, tag, etc.)
 └── src/
-    ├── app/                  # Next.js App Router pages
-    │   ├── page.tsx          # Home
-    │   ├── about/            # About — bio, experience, skills, certifications
-    │   ├── work/             # Projects
-    │   ├── blog/             # Blog
-    │   ├── gallery/          # Photography gallery
+    ├── app/
+    │   ├── (portfolio)/      # Default-locale routes (always ES)
+    │   │   ├── page.tsx      # Home
+    │   │   ├── about/        # About — bio, experience, skills, certifications
+    │   │   ├── work/         # Projects list + detail
+    │   │   ├── blog/         # Blog list + post
+    │   │   └── gallery/      # Photography gallery
+    │   ├── [locale]/
+    │   │   └── (portfolio)/  # Prefixed routes (/en/*, /es/*)
+    │   │       ├── page.tsx  # Same pages, locale passed as param
+    │   │       └── ...
     │   └── studio/           # Sanity Studio (admin panel)
     ├── components/           # Shared UI components (built with Once UI)
+    │   ├── home/             # Home-page specific (ServiceCard styles)
+    │   ├── work/             # Projects card + StopPropagation helper
+    │   └── gallery/          # Masonry grid with lightbox
+    ├── i18n/
+    │   └── translations.ts   # EN/ES string translations
     ├── sanity/               # Sanity data access layer
     │   ├── client.ts         # Sanity client
-    │   ├── queries.ts        # GROQ queries
+    │   ├── queries.ts        # GROQ queries (all filter published == true)
     │   ├── image.ts          # Image URL builder
+    │   ├── locale.ts         # l() / lBlock() helpers for bilingual fields
     │   └── types.ts          # TypeScript types from schemas
     ├── resources/
     │   ├── content.tsx       # Static content (migrated to Sanity progressively)
     │   └── once-ui.config.ts # Theme, routes, fonts, visual effects
     └── types/                # TypeScript type definitions
 ```
+
+## Site Routes
+
+| Route | Description |
+|---|---|
+| `/` | Home — hero, stats strip, "What I do" services, featured project, latest blog posts |
+| `/about` | About — bio, work experience, education, certifications, technical skills, social links |
+| `/work` | Projects — personal + professional, 2-column horizontal cards |
+| `/blog` | Blog — bilingual posts (EN/ES) |
+| `/gallery` | Gallery — masonry grid with tag + location filters and lightbox |
+| `/studio` | Sanity Studio — content management admin panel |
+
+All routes are also available with a locale prefix: `/en/*` and `/es/*`.
 
 ## Content Management
 
@@ -105,20 +130,35 @@ All content is managed from the Sanity Studio at `/studio` (or [sanity.io/manage
 
 | Type | Description |
 |---|---|
-| Site Config | Global info: name, bio, avatar, social links |
+| Site Config | Global info: name, bio, avatar, social links, hero headline/subline, stats strip |
+| Social Link | Social/contact links shown in the About sidebar |
+| Service | "What I do" cards on the home page (title, description, icon) |
 | Work Experience | Employment history |
 | Education | Degrees and courses |
 | Skill | Technical skills with tags and images |
 | Certification | Professional certifications (AWS, GCP, etc.) |
 | Project | Portfolio projects (personal + professional) |
 | Blog Post | Articles — bilingual EN/ES, Portable Text |
-| Gallery Image | Photography with destination/theme tags |
+| Gallery Image | Photography with location, date, and theme tags |
 
-Every content item has a **Published** toggle. Unpublish to hide an item from the site without deleting it.
+Every content item has a **Published** toggle. Unpublish to hide an item without deleting it.
+
+### Home page — configurable from Sanity
+
+Inside **Site Config → Home page** you can set:
+
+- **Headline** — hero heading (EN/ES)
+- **Subline** — hero subtext (EN/ES)
+- **Stats** — numbered strip (e.g. "6+ Years", "10+ Projects")
+
+The **What I do** section is populated from the **Services** content type. Each service has a title, description, and an icon name from the [Once UI icon set](https://once-ui.com/docs/icons) (e.g. `cloud`, `terminal`, `code`, `server`, `chip`).
 
 ### Bilingual content (EN/ES)
 
-Fields marked as bilingual have separate EN and ES inputs in the Studio. The site defaults to English; Spanish is served when the user switches locale.
+Fields marked as bilingual have separate EN and ES inputs in the Studio. The site defaults to Spanish (`es`); English is served at `/en/*` routes.
+
+- Non-prefixed URLs (`/about`) always serve the default locale (ES)
+- Prefixed URLs (`/en/about`, `/es/about`) serve the matching locale and keep the prefix on navigation
 
 ## Theme Customization
 
@@ -152,12 +192,14 @@ The following security measures are implemented out of the box:
 
 ## MCP Servers (for AI-assisted development)
 
-This project has three MCP servers configured for Claude Code:
+This project has four MCP servers configured for Claude Code:
 
-- **Context7** (project-level): live Once UI documentation
-- **next-devtools** (project-level): Next.js diagnostics, routes, and build info
-- **playwright** (project-level): browser automation and E2E testing
-- **Sanity** (user-level): query and manage Sanity content
+| MCP | Scope | Purpose |
+|---|---|---|
+| **Context7** | Project | Live Once UI documentation |
+| **next-devtools** | Project | Next.js diagnostics, routes, and build info |
+| **playwright** | Project | Browser automation and E2E testing |
+| **Sanity** | User | Query and manage Sanity content |
 
 To configure the Sanity MCP after creating your project:
 ```bash

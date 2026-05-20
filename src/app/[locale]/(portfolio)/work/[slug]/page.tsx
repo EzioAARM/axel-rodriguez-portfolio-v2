@@ -19,40 +19,46 @@ import { Projects } from "@/components/work/Projects";
 import { getProjectBySlug, getProjects, getSiteConfig } from "@/sanity/queries";
 import { urlForImage } from "@/sanity/image";
 import { l, lBlock } from "@/sanity/locale";
-import { DEFAULT_LOCALE, getT } from "@/i18n/translations";
+import { DEFAULT_LOCALE, LOCALES, Locale, getT } from "@/i18n/translations";
 import { Metadata } from "next";
 
-export async function generateStaticParams(): Promise<{ slug: string }[]> {
+export async function generateStaticParams() {
   const projects = await getProjects();
-  return projects.map((p) => ({ slug: p.slug }));
+  return LOCALES.flatMap((locale) => projects.map((p) => ({ locale, slug: p.slug })));
 }
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
+  const { slug, locale: rawLocale } = await params;
+  const locale: Locale = (LOCALES as readonly string[]).includes(rawLocale)
+    ? (rawLocale as Locale)
+    : DEFAULT_LOCALE;
   const project = await getProjectBySlug(slug);
   if (!project) return {};
   return Meta.generate({
-    title: l(project.title),
-    description: l(project.summary),
+    title: l(project.title, locale),
+    description: l(project.summary, locale),
     baseURL: baseURL,
     image: project.coverImage
       ? urlForImage(project.coverImage).width(1200).height(630).url()
-      : `/api/og/generate?title=${encodeURIComponent(l(project.title))}`,
+      : `/api/og/generate?title=${encodeURIComponent(l(project.title, locale))}`,
     path: `${work.path}/${project.slug}`,
   });
 }
 
-export default async function Project({
+export default async function LocaleProject({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }) {
-  const { slug } = await params;
-  const locale = DEFAULT_LOCALE;
+  const { slug, locale: rawLocale } = await params;
+  const locale: Locale = (LOCALES as readonly string[]).includes(rawLocale)
+    ? (rawLocale as Locale)
+    : DEFAULT_LOCALE;
+
   const t = getT(locale);
   const [project, config] = await Promise.all([getProjectBySlug(slug), getSiteConfig()]);
 
@@ -73,11 +79,11 @@ export default async function Project({
         as="blogPosting"
         baseURL={baseURL}
         path={`${work.path}/${project.slug}`}
-        title={l(project.title)}
-        description={l(project.summary)}
+        title={l(project.title, locale)}
+        description={l(project.summary, locale)}
         datePublished={project.startDate ?? ""}
         dateModified={project.startDate ?? ""}
-        image={coverUrl ?? `/api/og/generate?title=${encodeURIComponent(l(project.title))}`}
+        image={coverUrl ?? `/api/og/generate?title=${encodeURIComponent(l(project.title, locale))}`}
         author={{
           name: authorName,
           url: `${baseURL}${about.path}`,
@@ -86,12 +92,12 @@ export default async function Project({
       />
 
       <Column maxWidth="s" gap="16" horizontal="center" align="center">
-        <SmartLink href="/work">
+        <SmartLink href={`/${locale}${work.path}`}>
           <Text variant="label-strong-m">{t.work.backToProjects}</Text>
         </SmartLink>
-        <Heading variant="display-strong-m">{l(project.title)}</Heading>
+        <Heading variant="display-strong-m">{l(project.title, locale)}</Heading>
         <Text variant="body-default-l" onBackground="neutral-weak" align="center">
-          {l(project.summary)}
+          {l(project.summary, locale)}
         </Text>
       </Column>
 
@@ -119,7 +125,7 @@ export default async function Project({
       )}
 
       {coverUrl && (
-        <Media priority aspectRatio="16 / 9" radius="m" alt={l(project.title)} src={coverUrl} />
+        <Media priority aspectRatio="16 / 9" radius="m" alt={l(project.title, locale)} src={coverUrl} />
       )}
 
       {lBlock(project.body, locale).length > 0 && (
@@ -133,7 +139,7 @@ export default async function Project({
         <Heading as="h2" variant="heading-strong-xl" marginBottom="24">
           {t.work.relatedProjects}
         </Heading>
-        <Projects exclude={[project.slug]} range={[1, 3]} />
+        <Projects exclude={[project.slug]} range={[1, 3]} locale={locale} />
       </Column>
       <ScrollToHash />
     </Column>

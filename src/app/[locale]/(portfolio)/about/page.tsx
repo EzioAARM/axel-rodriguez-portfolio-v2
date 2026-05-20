@@ -25,7 +25,11 @@ import {
 } from "@/sanity/queries";
 import { urlForImage } from "@/sanity/image";
 import { l, lBlock, formatDateRange } from "@/sanity/locale";
-import { DEFAULT_LOCALE, getT } from "@/i18n/translations";
+import { DEFAULT_LOCALE, LOCALES, Locale, getT } from "@/i18n/translations";
+
+export function generateStaticParams() {
+  return LOCALES.map((locale) => ({ locale }));
+}
 
 export async function generateMetadata() {
   return Meta.generate({
@@ -37,8 +41,16 @@ export async function generateMetadata() {
   });
 }
 
-export default async function About() {
-  const locale = DEFAULT_LOCALE;
+export default async function LocaleAbout({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale: rawLocale } = await params;
+  const locale: Locale = (LOCALES as readonly string[]).includes(rawLocale)
+    ? (rawLocale as Locale)
+    : DEFAULT_LOCALE;
+
   const t = getT(locale);
   const dateLocale = locale === "es" ? "es-GT" : "en-US";
 

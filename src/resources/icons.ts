@@ -12,6 +12,11 @@ import {
   HiOutlineDocument,
   HiOutlineGlobeAsiaAustralia,
   HiOutlineRocketLaunch,
+  HiOutlineCloud,
+  HiOutlineCommandLine,
+  HiOutlineCodeBracket,
+  HiOutlineServer,
+  HiOutlineCpuChip,
 } from "react-icons/hi2";
 
 import {
@@ -54,6 +59,11 @@ export const iconLibrary: Record<string, IconType> = {
   arrowUpRightFromSquare: HiArrowTopRightOnSquare,
   document: HiOutlineDocument,
   rocket: HiOutlineRocketLaunch,
+  cloud: HiOutlineCloud,
+  terminal: HiOutlineCommandLine,
+  code: HiOutlineCodeBracket,
+  server: HiOutlineServer,
+  chip: HiOutlineCpuChip,
   javascript: SiJavascript,
   nextjs: SiNextdotjs,
   supabase: SiSupabase,

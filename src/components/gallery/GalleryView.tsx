@@ -8,7 +8,6 @@ import {
   Icon,
   IconButton,
   MasonryGrid,
-  Media,
   Row,
   Spinner,
   Tag,
@@ -19,11 +18,67 @@ import { l } from "@/sanity/locale";
 
 type ImageWithUrls = GalleryImage & { imageUrl: string; highResUrl: string };
 
-interface GalleryViewProps {
-  images: ImageWithUrls[];
+interface GalleryTranslations {
+  all: string;
+  noResults: string;
+  clearLocation: string;
+  filterByLocation: string;
+  filterByTag: string;
+  close: string;
 }
 
-export default function GalleryView({ images }: GalleryViewProps) {
+interface GalleryViewProps {
+  images: ImageWithUrls[];
+  translations: GalleryTranslations;
+}
+
+function GridImageItem({
+  src,
+  alt,
+  onClick,
+}: {
+  src: string;
+  alt: string;
+  onClick: () => void;
+}) {
+  const [loaded, setLoaded] = useState(false);
+
+  return (
+    <div style={{ position: "relative", borderRadius: "var(--radius-m)", overflow: "hidden" }}>
+      {!loaded && (
+        <Flex
+          center
+          style={{
+            position: "absolute",
+            inset: 0,
+            minHeight: "180px",
+            background: "var(--neutral-alpha-weak)",
+            zIndex: 1,
+          }}
+        >
+          <Spinner size="m" />
+        </Flex>
+      )}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={src}
+        alt={alt}
+        onLoad={() => setLoaded(true)}
+        onClick={onClick}
+        style={{
+          display: "block",
+          width: "100%",
+          borderRadius: "var(--radius-m)",
+          cursor: "zoom-in",
+          opacity: loaded ? 1 : 0,
+          transition: "opacity 0.35s ease",
+        }}
+      />
+    </div>
+  );
+}
+
+export default function GalleryView({ images, translations: tr }: GalleryViewProps) {
   const [selected, setSelected] = useState<ImageWithUrls | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [activeTag, setActiveTag] = useState<string | null>(null);
@@ -103,7 +158,7 @@ export default function GalleryView({ images }: GalleryViewProps) {
           <Button
             size="s"
             variant={hasActiveFilter ? "secondary" : "primary"}
-            label="All"
+            label={tr.all}
             onClick={clearFilters}
           />
           {allTags.map((tag) => (
@@ -130,7 +185,7 @@ export default function GalleryView({ images }: GalleryViewProps) {
             size="s"
             variant="tertiary"
             onClick={() => setActiveLocation(null)}
-            aria-label="Clear location filter"
+            aria-label={tr.clearLocation}
           />
         </Row>
       )}
@@ -138,15 +193,11 @@ export default function GalleryView({ images }: GalleryViewProps) {
       {/* ── Grid ── */}
       {filtered.length > 0 ? (
         <MasonryGrid columns={2} s={{ columns: 1 }}>
-          {filtered.map((image, index) => (
-            <Media
+          {filtered.map((image) => (
+            <GridImageItem
               key={image._id}
-              priority={index < 10}
-              sizes="(max-width: 560px) 100vw, 50vw"
-              radius="m"
               src={image.imageUrl}
               alt={l(image.alt)}
-              style={{ cursor: "zoom-in" }}
               onClick={() => setSelected(image)}
             />
           ))}
@@ -154,7 +205,7 @@ export default function GalleryView({ images }: GalleryViewProps) {
       ) : (
         <Flex fillWidth paddingY="xl" horizontal="center">
           <Text onBackground="neutral-weak" variant="body-default-m">
-            No photos match the selected filters.
+            {tr.noResults}
           </Text>
         </Flex>
       )}
@@ -190,7 +241,7 @@ export default function GalleryView({ images }: GalleryViewProps) {
                 variant="secondary"
                 size="m"
                 onClick={close}
-                aria-label="Close"
+                aria-label={tr.close}
               />
             </Row>
 
@@ -232,9 +283,9 @@ export default function GalleryView({ images }: GalleryViewProps) {
             </Column>
 
             {hasMetadata(selected) && (
-              <Column background="surface" radius="m" padding="m" gap="s">
+              <Column background="neutral-weak" radius="m" padding="m" gap="s">
                 {l(selected.caption) && (
-                  <Text variant="body-default-m">{l(selected.caption)}</Text>
+                  <Text variant="body-default-m" onBackground="neutral-strong">{l(selected.caption)}</Text>
                 )}
 
                 <Row gap="24" wrap>
@@ -243,13 +294,13 @@ export default function GalleryView({ images }: GalleryViewProps) {
                       gap="8"
                       vertical="center"
                       style={{ cursor: "pointer" }}
-                      title="Filter by location"
+                      title={tr.filterByLocation}
                       onClick={() => applyLocationFilter(selected.location!)}
                     >
-                      <Icon name="globe" size="s" onBackground="accent-weak" />
+                      <Icon name="globe" size="s" onBackground="brand-weak" />
                       <Text
                         variant="body-default-s"
-                        onBackground="accent-weak"
+                        onBackground="brand-weak"
                         style={{ textDecoration: "underline" }}
                       >
                         {selected.location}
@@ -258,8 +309,8 @@ export default function GalleryView({ images }: GalleryViewProps) {
                   )}
                   {selected.dateTaken && (
                     <Row gap="8" vertical="center">
-                      <Icon name="calendar" size="s" onBackground="neutral-weak" />
-                      <Text variant="body-default-s" onBackground="neutral-weak">
+                      <Icon name="calendar" size="s" onBackground="neutral-medium" />
+                      <Text variant="body-default-s" onBackground="neutral-medium">
                         {new Date(selected.dateTaken).toLocaleDateString("en-US", {
                           year: "numeric",
                           month: "long",
@@ -277,7 +328,7 @@ export default function GalleryView({ images }: GalleryViewProps) {
                         key={tag.label}
                         size="s"
                         style={{ cursor: "pointer" }}
-                        title="Filter by tag"
+                        title={tr.filterByTag}
                         onClick={() => applyTagFilter(tag.label)}
                       >
                         {tag.label}

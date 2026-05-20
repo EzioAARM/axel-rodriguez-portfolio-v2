@@ -20,8 +20,12 @@ import { Posts } from "@/components/blog/Posts";
 import { getSiteConfig, getServices } from "@/sanity/queries";
 import { urlForImage } from "@/sanity/image";
 import { l } from "@/sanity/locale";
-import { DEFAULT_LOCALE, getT } from "@/i18n/translations";
+import { DEFAULT_LOCALE, LOCALES, Locale, getT } from "@/i18n/translations";
 import styles from "@/components/home/ServiceCard.module.scss";
+
+export function generateStaticParams() {
+  return LOCALES.map((locale) => ({ locale }));
+}
 
 export async function generateMetadata() {
   return Meta.generate({
@@ -33,8 +37,16 @@ export async function generateMetadata() {
   });
 }
 
-export default async function Home() {
-  const locale = DEFAULT_LOCALE;
+export default async function LocaleHome({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale: rawLocale } = await params;
+  const locale: Locale = (LOCALES as readonly string[]).includes(rawLocale)
+    ? (rawLocale as Locale)
+    : DEFAULT_LOCALE;
+
   const t = getT(locale);
 
   const [config, services] = await Promise.all([getSiteConfig(), getServices()]);
@@ -99,7 +111,7 @@ export default async function Home() {
             <Button
               id="about"
               data-border="rounded"
-              href={about.path}
+              href={`/${locale}${about.path}`}
               variant="secondary"
               size="m"
               weight="default"
@@ -120,7 +132,6 @@ export default async function Home() {
           </RevealFx>
         </Column>
       </Column>
-
       {/* ── Stats strip ── */}
       {stats.length > 0 && (
         <Row fillWidth horizontal="center" wrap gap="40" paddingY="24" paddingX="l">
@@ -175,7 +186,7 @@ export default async function Home() {
           {t.home.projects}
         </Heading>
         <RevealFx translateY="16" delay={0.6}>
-          <Projects range={[1, 1]} />
+          <Projects range={[1, 1]} locale={locale} />
         </RevealFx>
       </Column>
 
@@ -199,9 +210,8 @@ export default async function Home() {
           </Row>
         </Column>
       )}
-      <Projects range={[2]} />
+      <Projects range={[2]} locale={locale} />
       {config?.showNewsletter && <Mailchimp />}
-
     </Column>
   );
 }
