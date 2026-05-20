@@ -160,7 +160,6 @@ export default async function LocaleHome({
                 key={service._id}
                 className={styles.card}
                 background="surface"
-                border="neutral-alpha-medium"
                 radius="l"
                 padding="l"
                 gap="m"
@@ -182,9 +181,14 @@ export default async function LocaleHome({
         </Column>
       )}
 
-      <RevealFx translateY="16" delay={0.6}>
-        <Projects range={[1, 1]} locale={locale} />
-      </RevealFx>
+      <Column fillWidth gap="l">
+        <Heading as="h2" variant="display-strong-s" align="center">
+          {t.home.projects}
+        </Heading>
+        <RevealFx translateY="16" delay={0.6}>
+          <Projects range={[1, 1]} locale={locale} />
+        </RevealFx>
+      </Column>
 
       {routes["/blog"] && config?.showBlog !== false && (
         <Column fillWidth gap="24" marginBottom="l">

@@ -53,7 +53,6 @@ export async function Projects({ range, exclude, locale = DEFAULT_LOCALE }: Proj
           >
             <Row
               fillWidth
-              border="neutral-alpha-medium"
               radius="l"
               overflow="hidden"
               s={{ direction: "column" }}

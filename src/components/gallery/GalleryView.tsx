@@ -8,7 +8,6 @@ import {
   Icon,
   IconButton,
   MasonryGrid,
-  Media,
   Row,
   Spinner,
   Tag,
@@ -31,6 +30,52 @@ interface GalleryTranslations {
 interface GalleryViewProps {
   images: ImageWithUrls[];
   translations: GalleryTranslations;
+}
+
+function GridImageItem({
+  src,
+  alt,
+  onClick,
+}: {
+  src: string;
+  alt: string;
+  onClick: () => void;
+}) {
+  const [loaded, setLoaded] = useState(false);
+
+  return (
+    <div style={{ position: "relative", borderRadius: "var(--radius-m)", overflow: "hidden" }}>
+      {!loaded && (
+        <Flex
+          center
+          style={{
+            position: "absolute",
+            inset: 0,
+            minHeight: "180px",
+            background: "var(--neutral-alpha-weak)",
+            zIndex: 1,
+          }}
+        >
+          <Spinner size="m" />
+        </Flex>
+      )}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={src}
+        alt={alt}
+        onLoad={() => setLoaded(true)}
+        onClick={onClick}
+        style={{
+          display: "block",
+          width: "100%",
+          borderRadius: "var(--radius-m)",
+          cursor: "zoom-in",
+          opacity: loaded ? 1 : 0,
+          transition: "opacity 0.35s ease",
+        }}
+      />
+    </div>
+  );
 }
 
 export default function GalleryView({ images, translations: tr }: GalleryViewProps) {
@@ -148,15 +193,11 @@ export default function GalleryView({ images, translations: tr }: GalleryViewPro
       {/* ── Grid ── */}
       {filtered.length > 0 ? (
         <MasonryGrid columns={2} s={{ columns: 1 }}>
-          {filtered.map((image, index) => (
-            <Media
+          {filtered.map((image) => (
+            <GridImageItem
               key={image._id}
-              priority={index < 10}
-              sizes="(max-width: 560px) 100vw, 50vw"
-              radius="m"
               src={image.imageUrl}
               alt={l(image.alt)}
-              style={{ cursor: "zoom-in" }}
               onClick={() => setSelected(image)}
             />
           ))}
