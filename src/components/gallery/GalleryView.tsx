@@ -242,9 +242,9 @@ export default function GalleryView({ images, translations: tr }: GalleryViewPro
             </Column>
 
             {hasMetadata(selected) && (
-              <Column background="surface" radius="m" padding="m" gap="s">
+              <Column background="neutral-weak" radius="m" padding="m" gap="s">
                 {l(selected.caption) && (
-                  <Text variant="body-default-m">{l(selected.caption)}</Text>
+                  <Text variant="body-default-m" onBackground="neutral-strong">{l(selected.caption)}</Text>
                 )}
 
                 <Row gap="24" wrap>
@@ -256,10 +256,10 @@ export default function GalleryView({ images, translations: tr }: GalleryViewPro
                       title={tr.filterByLocation}
                       onClick={() => applyLocationFilter(selected.location!)}
                     >
-                      <Icon name="globe" size="s" onBackground="accent-weak" />
+                      <Icon name="globe" size="s" onBackground="brand-weak" />
                       <Text
                         variant="body-default-s"
-                        onBackground="accent-weak"
+                        onBackground="brand-weak"
                         style={{ textDecoration: "underline" }}
                       >
                         {selected.location}
@@ -268,8 +268,8 @@ export default function GalleryView({ images, translations: tr }: GalleryViewPro
                   )}
                   {selected.dateTaken && (
                     <Row gap="8" vertical="center">
-                      <Icon name="calendar" size="s" onBackground="neutral-weak" />
-                      <Text variant="body-default-s" onBackground="neutral-weak">
+                      <Icon name="calendar" size="s" onBackground="neutral-medium" />
+                      <Text variant="body-default-s" onBackground="neutral-medium">
                         {new Date(selected.dateTaken).toLocaleDateString("en-US", {
                           year: "numeric",
                           month: "long",

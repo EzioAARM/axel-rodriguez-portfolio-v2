@@ -63,8 +63,8 @@ export default async function About() {
     { title: about.intro.title, display: hasBio, items: [] },
     { title: t.about.work, display: workExp.length > 0, items: workExp.map((e) => e.company) },
     { title: t.about.studies, display: education.length > 0, items: education.map((e) => e.institution) },
-    { title: t.about.technical, display: skills.length > 0, items: [] },
     ...(certs.length > 0 ? [{ title: t.about.certifications, display: true, items: [] }] : []),
+    { title: t.about.technical, display: skills.length > 0, items: [] },
   ];
 
   return (
@@ -121,6 +121,20 @@ export default async function About() {
               <Row wrap gap="8">
                 {config.languages.map((lang, i) => (
                   <Tag key={i} size="l">{lang}</Tag>
+                ))}
+              </Row>
+            )}
+            {socialLinks.length > 0 && (
+              <Row wrap gap="8" horizontal="center">
+                {socialLinks.map((link) => (
+                  <IconButton
+                    key={link._id}
+                    size="m"
+                    href={link.url}
+                    icon={link.icon}
+                    variant="secondary"
+                    tooltip={link.label || link.platform}
+                  />
                 ))}
               </Row>
             )}
@@ -287,41 +301,6 @@ export default async function About() {
             </>
           )}
 
-          {/* ── Skills ── */}
-          {skills.length > 0 && (
-            <>
-              <Heading
-                as="h2"
-                id={t.about.technical}
-                variant="display-strong-s"
-                marginBottom="40"
-              >
-                {t.about.technical}
-              </Heading>
-              <Column fillWidth gap="l" marginBottom="40">
-                {Object.entries(
-                  skills.reduce<Record<string, typeof skills>>((acc, skill) => {
-                    const cat = skill.category ?? "other";
-                    if (!acc[cat]) acc[cat] = [];
-                    acc[cat].push(skill);
-                    return acc;
-                  }, {})
-                ).map(([category, categorySkills]) => (
-                  <Column key={category} fillWidth gap="8">
-                    <Text variant="label-strong-m" onBackground="neutral-weak">
-                      {category.charAt(0).toUpperCase() + category.slice(1)}
-                    </Text>
-                    <Row wrap gap="8">
-                      {categorySkills.map((skill) => (
-                        <Tag key={skill._id} size="l">{l(skill.name, locale)}</Tag>
-                      ))}
-                    </Row>
-                  </Column>
-                ))}
-              </Column>
-            </>
-          )}
-
           {/* ── Certifications ── */}
           {certs.length > 0 && (
             <>
@@ -353,6 +332,41 @@ export default async function About() {
                           label={t.about.verify}
                         />
                       )}
+                    </Row>
+                  </Column>
+                ))}
+              </Column>
+            </>
+          )}
+
+          {/* ── Skills ── */}
+          {skills.length > 0 && (
+            <>
+              <Heading
+                as="h2"
+                id={t.about.technical}
+                variant="display-strong-s"
+                marginBottom="40"
+              >
+                {t.about.technical}
+              </Heading>
+              <Column fillWidth gap="l" marginBottom="40">
+                {Object.entries(
+                  skills.reduce<Record<string, typeof skills>>((acc, skill) => {
+                    const cat = skill.category ?? "other";
+                    if (!acc[cat]) acc[cat] = [];
+                    acc[cat].push(skill);
+                    return acc;
+                  }, {})
+                ).map(([category, categorySkills]) => (
+                  <Column key={category} fillWidth gap="8">
+                    <Text variant="label-strong-m" onBackground="neutral-weak">
+                      {category.charAt(0).toUpperCase() + category.slice(1)}
+                    </Text>
+                    <Row wrap gap="8">
+                      {categorySkills.map((skill) => (
+                        <Tag key={skill._id} size="l">{l(skill.name, locale)}</Tag>
+                      ))}
                     </Row>
                   </Column>
                 ))}
