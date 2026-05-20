@@ -1,10 +1,14 @@
-import { Column, Heading, Meta, Schema, Text } from "@once-ui-system/core";
+import { Column, Heading, Meta, Schema } from "@once-ui-system/core";
 import { Mailchimp } from "@/components";
 import { Posts } from "@/components/blog/Posts";
 import { baseURL, blog, person } from "@/resources";
 import { getSiteConfig } from "@/sanity/queries";
 import { urlForImage } from "@/sanity/image";
-import { DEFAULT_LOCALE, getT } from "@/i18n/translations";
+import { DEFAULT_LOCALE, LOCALES, Locale, getT } from "@/i18n/translations";
+
+export function generateStaticParams() {
+  return LOCALES.map((locale) => ({ locale }));
+}
 
 export async function generateMetadata() {
   return Meta.generate({
@@ -16,8 +20,16 @@ export async function generateMetadata() {
   });
 }
 
-export default async function Blog() {
-  const locale = DEFAULT_LOCALE;
+export default async function LocaleBlog({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale: rawLocale } = await params;
+  const locale: Locale = (LOCALES as readonly string[]).includes(rawLocale)
+    ? (rawLocale as Locale)
+    : DEFAULT_LOCALE;
+
   const t = getT(locale);
 
   const config = await getSiteConfig();
@@ -45,13 +57,13 @@ export default async function Blog() {
         {blog.title}
       </Heading>
       <Column fillWidth flex={1} gap="40">
-        <Posts range={[1, 1]} thumbnail />
-        <Posts range={[2, 3]} columns="2" thumbnail direction="column" />
+        <Posts range={[1, 1]} thumbnail locale={locale} />
+        <Posts range={[2, 3]} columns="2" thumbnail direction="column" locale={locale} />
         {config?.showNewsletter && <Mailchimp marginBottom="l" />}
         <Heading as="h2" variant="heading-strong-xl" marginLeft="l">
           {t.blog.earlierPosts}
         </Heading>
-        <Posts range={[4]} columns="2" />
+        <Posts range={[4]} columns="2" locale={locale} />
       </Column>
     </Column>
   );

@@ -25,6 +25,8 @@ const translations = {
     },
     blog: {
       earlierPosts: "Earlier posts",
+      recentPosts: "Recent posts",
+      minRead: "min read",
     },
     gallery: {
       all: "All",
@@ -36,6 +38,8 @@ const translations = {
     },
     work: {
       noProjects: "No projects to show yet.",
+      backToProjects: "Projects",
+      relatedProjects: "Related projects",
     },
   },
   es: {
@@ -59,6 +63,8 @@ const translations = {
     },
     blog: {
       earlierPosts: "Posts anteriores",
+      recentPosts: "Posts recientes",
+      minRead: "min de lectura",
     },
     gallery: {
       all: "Todos",
@@ -70,6 +76,8 @@ const translations = {
     },
     work: {
       noProjects: "Sin proyectos por mostrar.",
+      backToProjects: "Proyectos",
+      relatedProjects: "Proyectos relacionados",
     },
   },
 } as const;

@@ -25,7 +25,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Set default locale cookie on first visit
+  // Set default locale cookie on first visit (used by non-prefixed routes)
   const response = NextResponse.next();
   if (!request.cookies.has(LOCALE_COOKIE)) {
     response.cookies.set(LOCALE_COOKIE, DEFAULT_LOCALE, {

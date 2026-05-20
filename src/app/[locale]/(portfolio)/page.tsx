@@ -17,7 +17,11 @@ import { Projects } from "@/components/work/Projects";
 import { Posts } from "@/components/blog/Posts";
 import { getSiteConfig } from "@/sanity/queries";
 import { urlForImage } from "@/sanity/image";
-import { DEFAULT_LOCALE, getT } from "@/i18n/translations";
+import { DEFAULT_LOCALE, LOCALES, Locale, getT } from "@/i18n/translations";
+
+export function generateStaticParams() {
+  return LOCALES.map((locale) => ({ locale }));
+}
 
 export async function generateMetadata() {
   return Meta.generate({
@@ -29,8 +33,16 @@ export async function generateMetadata() {
   });
 }
 
-export default async function Home() {
-  const locale = DEFAULT_LOCALE;
+export default async function LocaleHome({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale: rawLocale } = await params;
+  const locale: Locale = (LOCALES as readonly string[]).includes(rawLocale)
+    ? (rawLocale as Locale)
+    : DEFAULT_LOCALE;
+
   const t = getT(locale);
 
   const config = await getSiteConfig();
@@ -91,7 +103,7 @@ export default async function Home() {
             <Button
               id="about"
               data-border="rounded"
-              href={about.path}
+              href={`/${locale}${about.path}`}
               variant="secondary"
               size="m"
               weight="default"
@@ -113,7 +125,7 @@ export default async function Home() {
         </Column>
       </Column>
       <RevealFx translateY="16" delay={0.6}>
-        <Projects range={[1, 1]} />
+        <Projects range={[1, 1]} locale={locale} />
       </RevealFx>
       {routes["/blog"] && config?.showBlog !== false && (
         <Column fillWidth gap="24" marginBottom="l">
@@ -135,7 +147,7 @@ export default async function Home() {
           </Row>
         </Column>
       )}
-      <Projects range={[2]} />
+      <Projects range={[2]} locale={locale} />
       {config?.showNewsletter && <Mailchimp />}
     </Column>
   );

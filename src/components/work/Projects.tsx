@@ -3,17 +3,15 @@ import { ProjectCard } from "@/components";
 import { getProjects } from "@/sanity/queries";
 import { urlForImage } from "@/sanity/image";
 import { l } from "@/sanity/locale";
-import { cookies } from "next/headers";
-import { DEFAULT_LOCALE, LOCALE_COOKIE, Locale, getT } from "@/i18n/translations";
+import { DEFAULT_LOCALE, Locale, getT } from "@/i18n/translations";
 
 interface ProjectsProps {
   range?: [number, number?];
   exclude?: string[];
+  locale?: Locale;
 }
 
-export async function Projects({ range, exclude }: ProjectsProps) {
-  const cookieStore = await cookies();
-  const locale = (cookieStore.get(LOCALE_COOKIE)?.value as Locale) ?? DEFAULT_LOCALE;
+export async function Projects({ range, exclude, locale = DEFAULT_LOCALE }: ProjectsProps) {
   const t = getT(locale);
 
   let projects = await getProjects();

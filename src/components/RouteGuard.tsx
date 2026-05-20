@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { routes, protectedRoutes } from "@/resources";
+import { LOCALES } from "@/i18n/translations";
 import { Flex, Spinner, Button, Heading, Column, PasswordInput } from "@once-ui-system/core";
 import NotFound from "@/app/not-found";
 
@@ -32,13 +33,20 @@ const RouteGuard: React.FC<RouteGuardProps> = ({ children }) => {
         // Studio handles its own authentication — always allow
         if (pathname.startsWith("/studio")) return true;
 
-        if (pathname in routes) {
-          return routes[pathname as keyof typeof routes];
+        // Strip locale prefix before checking routes (/en/about → /about)
+        let basePath = pathname;
+        for (const loc of LOCALES) {
+          if (pathname === `/${loc}`) { basePath = "/"; break; }
+          if (pathname.startsWith(`/${loc}/`)) { basePath = pathname.slice(`/${loc}`.length); break; }
+        }
+
+        if (basePath in routes) {
+          return routes[basePath as keyof typeof routes];
         }
 
         const dynamicRoutes = ["/blog", "/work"] as const;
         for (const route of dynamicRoutes) {
-          if (pathname?.startsWith(route) && routes[route]) {
+          if (basePath.startsWith(route) && routes[route]) {
             return true;
           }
         }

@@ -16,7 +16,11 @@ import {
 import { Footer, Header, RouteGuard, Providers } from "@/components";
 import { baseURL, effects, fonts, style, dataStyle, home } from "@/resources";
 import { getSiteConfig } from "@/sanity/queries";
-import { DEFAULT_LOCALE } from "@/i18n/translations";
+import { DEFAULT_LOCALE, LOCALES, Locale } from "@/i18n/translations";
+
+export function generateStaticParams() {
+  return LOCALES.map((locale) => ({ locale }));
+}
 
 export async function generateMetadata() {
   return Meta.generate({
@@ -28,12 +32,17 @@ export async function generateMetadata() {
   });
 }
 
-export default async function RootLayout({
+export default async function LocaleLayout({
   children,
+  params,
 }: Readonly<{
   children: React.ReactNode;
+  params: Promise<{ locale: string }>;
 }>) {
-  const locale = DEFAULT_LOCALE;
+  const { locale: rawLocale } = await params;
+  const locale: Locale = (LOCALES as readonly string[]).includes(rawLocale)
+    ? (rawLocale as Locale)
+    : DEFAULT_LOCALE;
 
   const config = await getSiteConfig();
   const showBlog = config?.showBlog ?? true;
@@ -42,7 +51,7 @@ export default async function RootLayout({
     <Flex
       suppressHydrationWarning
       as="html"
-      lang="en"
+      lang={locale}
       fillWidth
       className={classNames(
         fonts.heading.variable,
@@ -60,8 +69,7 @@ export default async function RootLayout({
                 try {
                   const root = document.documentElement;
                   const defaultTheme = 'system';
-                  
-                  // Set defaults from config
+
                   const config = ${JSON.stringify({
                     brand: style.brand,
                     accent: style.accent,
@@ -74,26 +82,22 @@ export default async function RootLayout({
                     scaling: style.scaling,
                     "viz-style": dataStyle.variant,
                   })};
-                  
-                  // Apply default values
+
                   Object.entries(config).forEach(([key, value]) => {
                     root.setAttribute('data-' + key, value);
                   });
-                  
-                  // Resolve theme
+
                   const resolveTheme = (themeValue) => {
                     if (!themeValue || themeValue === 'system') {
                       return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
                     }
                     return themeValue;
                   };
-                  
-                  // Apply saved theme
+
                   const savedTheme = localStorage.getItem('data-theme');
                   const resolvedTheme = resolveTheme(savedTheme);
                   root.setAttribute('data-theme', resolvedTheme);
-                  
-                  // Apply any saved style overrides
+
                   const styleKeys = Object.keys(config);
                   styleKeys.forEach(key => {
                     const value = localStorage.getItem('data-' + key);

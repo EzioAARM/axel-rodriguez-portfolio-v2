@@ -1,8 +1,22 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { Row, ToggleButton, Line } from "@once-ui-system/core";
-import { Locale, LOCALE_COOKIE } from "@/i18n/translations";
+import { useRouter, usePathname } from "next/navigation";
+import { DropdownWrapper, Dropdown, Option } from "@once-ui-system/core";
+import { Button } from "@once-ui-system/core";
+import { Locale, LOCALES, DEFAULT_LOCALE } from "@/i18n/translations";
+
+const LOCALE_LABELS: Record<Locale, string> = {
+  es: "ES",
+  en: "EN",
+};
+
+function stripLocalePrefix(pathname: string): string {
+  for (const loc of LOCALES) {
+    if (pathname === `/${loc}`) return "/";
+    if (pathname.startsWith(`/${loc}/`)) return pathname.slice(`/${loc}`.length);
+  }
+  return pathname;
+}
 
 interface LanguageSwitcherProps {
   locale: Locale;
@@ -10,25 +24,45 @@ interface LanguageSwitcherProps {
 
 export function LanguageSwitcher({ locale }: LanguageSwitcherProps) {
   const router = useRouter();
+  const pathname = usePathname();
 
-  const switchLocale = (next: Locale) => {
-    document.cookie = `${LOCALE_COOKIE}=${next}; path=/; SameSite=Lax; Max-Age=${60 * 60 * 24 * 365}`;
-    router.refresh();
+  const switchToLocale = (next: string) => {
+    const nextLocale = next as Locale;
+    const basePath = stripLocalePrefix(pathname);
+    if (nextLocale === DEFAULT_LOCALE) {
+      router.push(basePath);
+    } else {
+      router.push(`/${nextLocale}${basePath}`);
+    }
   };
 
+  const trigger = (
+    <Button
+      size="s"
+      variant="tertiary"
+      suffixIcon="chevronDown"
+      label={LOCALE_LABELS[locale]}
+    />
+  );
+
   return (
-    <Row gap="4" vertical="center">
-      <Line background="neutral-alpha-medium" vert maxHeight="24" />
-      <ToggleButton
-        label="ES"
-        selected={locale === "es"}
-        onClick={() => switchLocale("es")}
-      />
-      <ToggleButton
-        label="EN"
-        selected={locale === "en"}
-        onClick={() => switchLocale("en")}
-      />
-    </Row>
+    <DropdownWrapper
+      trigger={trigger}
+      dropdown={
+        <Dropdown onSelect={switchToLocale}>
+          {LOCALES.map((loc) => (
+            <Option
+              key={loc}
+              value={loc}
+              label={LOCALE_LABELS[loc]}
+              selected={locale === loc}
+              onClick={switchToLocale}
+            />
+          ))}
+        </Dropdown>
+      }
+      placement="bottom-end"
+      closeAfterClick
+    />
   );
 }
