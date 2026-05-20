@@ -18,3 +18,4 @@ export { project } from "./documents/project";
 export { blogPost } from "./documents/blogPost";
 export { galleryImage } from "./documents/galleryImage";
 export { socialLink } from "./documents/socialLink";
+export { service } from "./documents/service";

@@ -13,6 +13,7 @@ const translations = {
     },
     home: {
       latestBlog: "Latest from the blog",
+      whatIDo: "What I do",
     },
     about: {
       scheduleCall: "Schedule a call",
@@ -51,6 +52,7 @@ const translations = {
     },
     home: {
       latestBlog: "Lo último del blog",
+      whatIDo: "Qué hago",
     },
     about: {
       scheduleCall: "Agendar una llamada",

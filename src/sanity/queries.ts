@@ -9,6 +9,7 @@ import type {
   BlogPost,
   GalleryImage,
   SocialLink,
+  Service,
 } from "./types";
 
 // ─── Site Config ─────────────────────────────────────────────────────────────
@@ -25,6 +26,8 @@ export async function getSiteConfig(): Promise<SiteConfig | null> {
       location,
       languages,
       bio,
+      headline,
+      subline,
       calendarUrl,
       "socialLinks": socialLinks[]->{
         _id,
@@ -35,6 +38,7 @@ export async function getSiteConfig(): Promise<SiteConfig | null> {
         essential,
         order
       },
+      stats,
       seoTitle,
       seoDescription,
       showBlog,
@@ -249,6 +253,21 @@ export async function getGalleryTags(): Promise<string[]> {
   );
   const all = result.flat().map((t) => t.label);
   return [...new Set(all)].sort();
+}
+
+// ─── Services ────────────────────────────────────────────────────────────────
+
+export async function getServices(): Promise<Service[]> {
+  return client.fetch(
+    `*[_type == "service" && published == true] | order(order asc){
+      _id,
+      title,
+      description,
+      icon,
+      published,
+      order
+    }`
+  );
 }
 
 // ─── Social Links ─────────────────────────────────────────────────────────────

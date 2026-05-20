@@ -17,6 +17,7 @@ import {
   blogPost,
   galleryImage,
   socialLink,
+  service,
 } from "./schemas";
 
 const SINGLETON_TYPES = new Set(["siteConfig"]);
@@ -50,6 +51,7 @@ export default defineConfig({
             S.documentTypeListItem("galleryImage").title("Gallery"),
             S.divider(),
             S.documentTypeListItem("socialLink").title("Social Links"),
+            S.documentTypeListItem("service").title("Services"),
           ]),
     }),
   ],
@@ -74,6 +76,7 @@ export default defineConfig({
       blogPost,
       galleryImage,
       socialLink,
+      service,
     ],
     // Prevent singletons from appearing in the "new document" menu
     templates: (templates) =>

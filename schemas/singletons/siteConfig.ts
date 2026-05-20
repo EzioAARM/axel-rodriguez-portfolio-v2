@@ -10,6 +10,7 @@ export const siteConfig = defineType({
     { name: "identity", title: "Identity", default: true },
     { name: "bio", title: "Bio" },
     { name: "contact", title: "Contact" },
+    { name: "home", title: "Home page" },
     { name: "seo", title: "SEO" },
     { name: "settings", title: "Settings" },
   ],
@@ -85,6 +86,43 @@ export const siteConfig = defineType({
       of: [{ type: "reference", to: [{ type: "socialLink" }] }],
       description: "Select from the Social Links you defined in the Social Links section. The 'Show on About page' flag on each link controls where it appears.",
       group: "contact",
+    }),
+    defineField({
+      name: "headline",
+      title: "Hero headline",
+      type: "localeString",
+      group: "home",
+      description: "Main heading shown on the home page.",
+    }),
+    defineField({
+      name: "subline",
+      title: "Hero subline",
+      type: "localeString",
+      group: "home",
+      description: "Subtitle shown below the headline.",
+    }),
+    defineField({
+      name: "stats",
+      title: "Stats / Numbers",
+      type: "array",
+      group: "home",
+      description: 'Numbers displayed on the home page (e.g. "6+ Years of experience").',
+      of: [
+        {
+          type: "object",
+          name: "stat",
+          fields: [
+            defineField({ name: "value", title: "Value", type: "string", description: 'e.g. "6+"' }),
+            defineField({ name: "label", title: "Label", type: "localeString" }),
+          ],
+          preview: {
+            select: { value: "value", label: "label.en" },
+            prepare({ value, label }: { value?: string; label?: string }) {
+              return { title: [value, label].filter(Boolean).join(" — ") };
+            },
+          },
+        },
+      ],
     }),
     defineField({
       name: "seoTitle",

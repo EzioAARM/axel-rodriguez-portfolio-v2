@@ -10,14 +10,18 @@ import {
   Schema,
   Meta,
   Line,
+  Grid,
+  Icon,
 } from "@once-ui-system/core";
 import { home, about, person, baseURL, routes } from "@/resources";
 import { Mailchimp } from "@/components";
 import { Projects } from "@/components/work/Projects";
 import { Posts } from "@/components/blog/Posts";
-import { getSiteConfig } from "@/sanity/queries";
+import { getSiteConfig, getServices } from "@/sanity/queries";
 import { urlForImage } from "@/sanity/image";
+import { l } from "@/sanity/locale";
 import { DEFAULT_LOCALE, getT } from "@/i18n/translations";
+import styles from "@/components/home/ServiceCard.module.scss";
 
 export async function generateMetadata() {
   return Meta.generate({
@@ -33,11 +37,15 @@ export default async function Home() {
   const locale = DEFAULT_LOCALE;
   const t = getT(locale);
 
-  const config = await getSiteConfig();
+  const [config, services] = await Promise.all([getSiteConfig(), getServices()]);
   const authorName = config ? `${config.firstName} ${config.lastName}` : person.name;
   const avatarUrl = config?.avatar
     ? urlForImage(config.avatar).width(120).height(120).url()
     : person.avatar;
+
+  const stats = config?.stats ?? [];
+  const headline = l(config?.headline, locale) || home.headline;
+  const subline = l(config?.subline, locale) || home.subline;
 
   return (
     <Column maxWidth="m" gap="xl" paddingY="12" horizontal="center">
@@ -79,12 +87,12 @@ export default async function Home() {
           )}
           <RevealFx translateY="4" fillWidth horizontal="center" paddingBottom="16">
             <Heading wrap="balance" variant="display-strong-l">
-              {home.headline}
+              {headline}
             </Heading>
           </RevealFx>
           <RevealFx translateY="8" delay={0.2} fillWidth horizontal="center" paddingBottom="32">
             <Text wrap="balance" onBackground="neutral-weak" variant="heading-default-xl">
-              {home.subline}
+              {subline}
             </Text>
           </RevealFx>
           <RevealFx paddingTop="12" delay={0.4} horizontal="center" paddingLeft="12">
@@ -112,9 +120,61 @@ export default async function Home() {
           </RevealFx>
         </Column>
       </Column>
+
+      {/* ── Stats strip ── */}
+      {stats.length > 0 && (
+        <Row fillWidth horizontal="center" wrap gap="40" paddingY="24" paddingX="l">
+          {stats.map((stat, i) => (
+            <Column key={i} horizontal="center" gap="4">
+              <Heading variant="display-strong-l" onBackground="neutral-strong">
+                {stat.value}
+              </Heading>
+              <Text variant="label-default-s" onBackground="neutral-weak" align="center">
+                {l(stat.label, locale)}
+              </Text>
+            </Column>
+          ))}
+        </Row>
+      )}
+
+      {/* ── What I do ── */}
+      {services.length > 0 && (
+        <Column fillWidth gap="l">
+          <Heading as="h2" variant="display-strong-s" align="center">
+            {t.home.whatIDo}
+          </Heading>
+          <Grid columns="3" s={{ columns: 1 }} fillWidth gap="16">
+            {services.map((service) => (
+              <Column
+                key={service._id}
+                className={styles.card}
+                background="surface"
+                border="neutral-alpha-medium"
+                radius="l"
+                padding="l"
+                gap="m"
+              >
+                {service.icon && (
+                  <span className={styles.iconWrap}>
+                    <Icon name={service.icon as Parameters<typeof Icon>[0]["name"]} size="m" onBackground="brand-weak" />
+                  </span>
+                )}
+                <Heading as="h3" variant="heading-strong-l">
+                  {l(service.title, locale)}
+                </Heading>
+                <Text variant="body-default-m" onBackground="neutral-weak">
+                  {l(service.description, locale)}
+                </Text>
+              </Column>
+            ))}
+          </Grid>
+        </Column>
+      )}
+
       <RevealFx translateY="16" delay={0.6}>
         <Projects range={[1, 1]} />
       </RevealFx>
+
       {routes["/blog"] && config?.showBlog !== false && (
         <Column fillWidth gap="24" marginBottom="l">
           <Row fillWidth paddingRight="64">
