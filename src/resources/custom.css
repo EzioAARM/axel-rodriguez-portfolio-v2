@@ -1,69 +1,78 @@
-/* :root {
-  /*
-  /* Override default variables here */
-  /*
-  --font-size-display-multiplier:   1;
-  --font-size-heading-multiplier:   1;
-  --font-size-body-multiplier:      1;
-  --font-size-label-multiplier:     1;
+/* ─── Axel Rodriguez — Brand Color Palette ───────────────────────────────────
+ *
+ * Night Ocean   sRGB(0.038 0.195 0.270) → #0A3245
+ * Sauce Piquante sRGB(0.794 0.248 0.088) → #CA3F16
+ * Smoky Black   sRGB(0.056 0.051 0.038) → #0E0D0A
+ * Tropical Forest sRGB(0.012 0.291 0.267) → #034A44
+ * Swan Wing     sRGB(0.858 0.883 0.883) → #DBE1E1
+ *
+ * brand   = Night Ocean family (deep navy → sky blue)
+ * accent  = Sauce Piquante family (near-black → warm orange-red)
+ * neutral = Smoky Black → Swan Wing (warm dark → cool light)
+ * ─────────────────────────────────────────────────────────────────────────── */
 
-  --line-height-display-multiplier: 1;
-  --line-height-heading-multiplier: 1;
-  --line-height-body-multiplier:    1;
-  --line-height-label-multiplier:   1;
+:root {
+  /* ── Brand: Night Ocean (dark navy → sky blue) ─────────────────────────── */
+  --scheme-brand-100:  #010810;
+  --scheme-brand-200:  #041727;
+  --scheme-brand-300:  #0A3245;
+  --scheme-brand-400:  #0E4563;
+  --scheme-brand-500:  #145882;
+  --scheme-brand-600:  #1B74A8;
+  --scheme-brand-700:  #3492C9;
+  --scheme-brand-800:  #6BB6DF;
+  --scheme-brand-900:  #9DD0EC;
+  --scheme-brand-1000: #C2E4F6;
+  --scheme-brand-1100: #D9EFF9;
+  --scheme-brand-1200: #ECF7FD;
+  --scheme-brand-600-15: #1B74A826;
+  --scheme-brand-600-30: #1B74A84D;
+  --scheme-brand-600-50: #1B74A880;
 
-  --default-border:        var(--neutral-border-medium);
+  /* ── Accent: Sauce Piquante (deep brown-red → warm orange) ─────────────── */
+  --scheme-accent-100:  #120400;
+  --scheme-accent-200:  #2A0A00;
+  --scheme-accent-300:  #591200;
+  --scheme-accent-400:  #8A1E00;
+  --scheme-accent-500:  #B02B08;
+  --scheme-accent-600:  #CA3F16;
+  --scheme-accent-700:  #E05A35;
+  --scheme-accent-800:  #EF845E;
+  --scheme-accent-900:  #F5A98A;
+  --scheme-accent-1000: #F9CBB4;
+  --scheme-accent-1100: #FDDFD0;
+  --scheme-accent-1200: #FEEFE7;
+  --scheme-accent-600-15: #CA3F1626;
+  --scheme-accent-600-30: #CA3F164D;
+  --scheme-accent-600-50: #CA3F1680;
 
-  /*
-  /* Example setup for custom colors */
-  /* Generate at: https://once-ui.com/customize */
-  /*
-  --scheme-brand-100: #08002f;
-  --scheme-brand-200:  #04025c;
-  --scheme-brand-300:  #1f398e;
-  --scheme-brand-400:  #3856ae;
-  --scheme-brand-500:  #5071cc;
-  --scheme-brand-600:  #6f94f1;
-  --scheme-brand-700:  #8db3ff;
-  --scheme-brand-800:  #b2dbff;
-  --scheme-brand-900:  #bfe8ff;
-  --scheme-brand-1000: #ccf6ff;
-  --scheme-brand-1100: #d2fcff;
-  --scheme-brand-1200: #d2fcff;
-  --scheme-brand-600-10: rgba(111,148,241,0.1);
-  --scheme-brand-600-30: rgba(111,148,241,0.3);
-  --scheme-brand-600-50: rgba(111,148,241,0.5);
+  /* ── Neutral: Smoky Black → Swan Wing ──────────────────────────────────── */
+  --scheme-neutral-100:  #0E0D0A;
+  --scheme-neutral-200:  #1C1B18;
+  --scheme-neutral-300:  #302E2B;
+  --scheme-neutral-400:  #474540;
+  --scheme-neutral-500:  #615F59;
+  --scheme-neutral-600:  #80807A;
+  --scheme-neutral-700:  #9E9E97;
+  --scheme-neutral-800:  #BCBDB7;
+  --scheme-neutral-900:  #CACBC5;
+  --scheme-neutral-1000: #D4D5D0;
+  --scheme-neutral-1100: #DBE1E1;
+  --scheme-neutral-1200: #EBF0F0;
+  --scheme-neutral-600-15: #80807A26;
+  --scheme-neutral-600-30: #80807A4D;
+  --scheme-neutral-600-50: #80807A80;
 
-  --scheme-accent-100:  #030b10;
-  --scheme-accent-200:  #0d181d;
-  --scheme-accent-300:  #364248;
-  --scheme-accent-400:  #505d64;
-  --scheme-accent-500:  #69777e;
-  --scheme-accent-600:  #8a989f;
-  --scheme-accent-700:  #a8b7bf;
-  --scheme-accent-800:  #c8d7df;
-  --scheme-accent-900:  #d5e4ec;
-  --scheme-accent-1000: #e2f1f9;
-  --scheme-accent-1100: #e9f8ff;
-  --scheme-accent-1200: #efffff;
-  --scheme-accent-600-10: rgba(138,152,159,0.1);
-  --scheme-accent-600-30: rgba(138,152,159,0.3);
-  --scheme-accent-600-50: rgba(138,152,159,0.5);
+  /* ── Tropical Forest accent on interactive elements ────────────────────── */
+  --tropical-forest: #034A44;
+  --tropical-forest-medium: #09ADA0;
+  --tropical-forest-light: #B5F4EF;
 
-  --scheme-neutral-100:  #020b10;
-  --scheme-neutral-200:  #0b181d;
-  --scheme-neutral-300:  #344248;
-  --scheme-neutral-400:  #4f5d64;
-  --scheme-neutral-500:  #68777e;
-  --scheme-neutral-600:  #89989f;
-  --scheme-neutral-700:  #a7b7be;
-  --scheme-neutral-800:  #c7d7df;
-  --scheme-neutral-900:  #d4e4ec;
-  --scheme-neutral-1000: #e1f2f9;
-  --scheme-neutral-1100: #e7f8ff;
-  --scheme-neutral-1200: #eeffff;
-  --scheme-neutral-600-10: rgba(137,152,159,0.1);
-  --scheme-neutral-600-30: rgba(137,152,159,0.3);
-  --scheme-neutral-600-50: rgba(137,152,159,0.5);
-  /*
-}*/
+  /* ── Typography overrides ──────────────────────────────────────────────── */
+  --font-weight-body-default: var(--font-weight-light);
+}
+
+/* All headings use Space Mono */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-code) !important;
+}
