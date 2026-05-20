@@ -3,6 +3,8 @@ import GalleryView from "@/components/gallery/GalleryView";
 import { baseURL, gallery, person } from "@/resources";
 import { getGalleryImages, getSiteConfig } from "@/sanity/queries";
 import { urlForImage } from "@/sanity/image";
+import { cookies } from "next/headers";
+import { DEFAULT_LOCALE, LOCALE_COOKIE, Locale, getT } from "@/i18n/translations";
 
 export async function generateMetadata() {
   return Meta.generate({
@@ -15,6 +17,10 @@ export async function generateMetadata() {
 }
 
 export default async function Gallery() {
+  const cookieStore = await cookies();
+  const locale = (cookieStore.get(LOCALE_COOKIE)?.value as Locale) ?? DEFAULT_LOCALE;
+  const t = getT(locale);
+
   const [rawImages, config] = await Promise.all([getGalleryImages(), getSiteConfig()]);
 
   const authorName = config ? `${config.firstName} ${config.lastName}` : person.name;
@@ -43,7 +49,7 @@ export default async function Gallery() {
           image: authorAvatarUrl,
         }}
       />
-      <GalleryView images={images} />
+      <GalleryView images={images} translations={t.gallery} />
     </Flex>
   );
 }

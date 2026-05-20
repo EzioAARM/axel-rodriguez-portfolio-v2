@@ -19,11 +19,21 @@ import { l } from "@/sanity/locale";
 
 type ImageWithUrls = GalleryImage & { imageUrl: string; highResUrl: string };
 
-interface GalleryViewProps {
-  images: ImageWithUrls[];
+interface GalleryTranslations {
+  all: string;
+  noResults: string;
+  clearLocation: string;
+  filterByLocation: string;
+  filterByTag: string;
+  close: string;
 }
 
-export default function GalleryView({ images }: GalleryViewProps) {
+interface GalleryViewProps {
+  images: ImageWithUrls[];
+  translations: GalleryTranslations;
+}
+
+export default function GalleryView({ images, translations: tr }: GalleryViewProps) {
   const [selected, setSelected] = useState<ImageWithUrls | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [activeTag, setActiveTag] = useState<string | null>(null);
@@ -103,7 +113,7 @@ export default function GalleryView({ images }: GalleryViewProps) {
           <Button
             size="s"
             variant={hasActiveFilter ? "secondary" : "primary"}
-            label="All"
+            label={tr.all}
             onClick={clearFilters}
           />
           {allTags.map((tag) => (
@@ -130,7 +140,7 @@ export default function GalleryView({ images }: GalleryViewProps) {
             size="s"
             variant="tertiary"
             onClick={() => setActiveLocation(null)}
-            aria-label="Clear location filter"
+            aria-label={tr.clearLocation}
           />
         </Row>
       )}
@@ -154,7 +164,7 @@ export default function GalleryView({ images }: GalleryViewProps) {
       ) : (
         <Flex fillWidth paddingY="xl" horizontal="center">
           <Text onBackground="neutral-weak" variant="body-default-m">
-            No photos match the selected filters.
+            {tr.noResults}
           </Text>
         </Flex>
       )}
@@ -190,7 +200,7 @@ export default function GalleryView({ images }: GalleryViewProps) {
                 variant="secondary"
                 size="m"
                 onClick={close}
-                aria-label="Close"
+                aria-label={tr.close}
               />
             </Row>
 
@@ -243,7 +253,7 @@ export default function GalleryView({ images }: GalleryViewProps) {
                       gap="8"
                       vertical="center"
                       style={{ cursor: "pointer" }}
-                      title="Filter by location"
+                      title={tr.filterByLocation}
                       onClick={() => applyLocationFilter(selected.location!)}
                     >
                       <Icon name="globe" size="s" onBackground="accent-weak" />
@@ -277,7 +287,7 @@ export default function GalleryView({ images }: GalleryViewProps) {
                         key={tag.label}
                         size="s"
                         style={{ cursor: "pointer" }}
-                        title="Filter by tag"
+                        title={tr.filterByTag}
                         onClick={() => applyTagFilter(tag.label)}
                       >
                         {tag.label}

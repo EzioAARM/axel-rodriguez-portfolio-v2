@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateAuthToken, timingSafeEqual } from "@/lib/auth";
 import { protectedRoutes } from "@/resources";
+import { DEFAULT_LOCALE, LOCALE_COOKIE } from "@/i18n/translations";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -24,7 +25,16 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  return NextResponse.next();
+  // Set default locale cookie on first visit
+  const response = NextResponse.next();
+  if (!request.cookies.has(LOCALE_COOKIE)) {
+    response.cookies.set(LOCALE_COOKIE, DEFAULT_LOCALE, {
+      path: "/",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 365,
+    });
+  }
+  return response;
 }
 
 function redirectToHome(request: NextRequest) {

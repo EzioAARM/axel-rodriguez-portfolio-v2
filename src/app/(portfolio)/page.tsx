@@ -17,6 +17,8 @@ import { Projects } from "@/components/work/Projects";
 import { Posts } from "@/components/blog/Posts";
 import { getSiteConfig } from "@/sanity/queries";
 import { urlForImage } from "@/sanity/image";
+import { cookies } from "next/headers";
+import { DEFAULT_LOCALE, LOCALE_COOKIE, Locale, getT } from "@/i18n/translations";
 
 export async function generateMetadata() {
   return Meta.generate({
@@ -29,6 +31,10 @@ export async function generateMetadata() {
 }
 
 export default async function Home() {
+  const cookieStore = await cookies();
+  const locale = (cookieStore.get(LOCALE_COOKIE)?.value as Locale) ?? DEFAULT_LOCALE;
+  const t = getT(locale);
+
   const config = await getSiteConfig();
   const authorName = config ? `${config.firstName} ${config.lastName}` : person.name;
   const avatarUrl = config?.avatar
@@ -119,7 +125,7 @@ export default async function Home() {
           <Row fillWidth gap="24" marginTop="40" s={{ direction: "column" }}>
             <Row flex={1} paddingLeft="l" paddingTop="24">
               <Heading as="h2" variant="display-strong-xs" wrap="balance">
-                Latest from the blog
+                {t.home.latestBlog}
               </Heading>
             </Row>
             <Row flex={3} paddingX="20">

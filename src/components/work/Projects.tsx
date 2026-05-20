@@ -3,6 +3,8 @@ import { ProjectCard } from "@/components";
 import { getProjects } from "@/sanity/queries";
 import { urlForImage } from "@/sanity/image";
 import { l } from "@/sanity/locale";
+import { cookies } from "next/headers";
+import { DEFAULT_LOCALE, LOCALE_COOKIE, Locale, getT } from "@/i18n/translations";
 
 interface ProjectsProps {
   range?: [number, number?];
@@ -10,6 +12,10 @@ interface ProjectsProps {
 }
 
 export async function Projects({ range, exclude }: ProjectsProps) {
+  const cookieStore = await cookies();
+  const locale = (cookieStore.get(LOCALE_COOKIE)?.value as Locale) ?? DEFAULT_LOCALE;
+  const t = getT(locale);
+
   let projects = await getProjects();
 
   if (exclude?.length) {
@@ -25,7 +31,7 @@ export async function Projects({ range, exclude }: ProjectsProps) {
     return (
       <Column fillWidth paddingY="xl" horizontal="center">
         <Text onBackground="neutral-weak" variant="body-default-m">
-          No projects to show yet.
+          {t.work.noProjects}
         </Text>
       </Column>
     );
@@ -45,9 +51,9 @@ export async function Projects({ range, exclude }: ProjectsProps) {
             key={project.slug}
             href={`/work/${project.slug}`}
             images={imageUrl ? [imageUrl] : []}
-            title={l(project.title)}
-            description={l(project.summary)}
-            content={l(project.summary)}
+            title={l(project.title, locale)}
+            description={l(project.summary, locale)}
+            content={l(project.summary, locale)}
             avatars={[]}
             link={primaryLink}
           />

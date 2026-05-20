@@ -5,13 +5,15 @@ import { useEffect, useState } from "react";
 
 import { Fade, Flex, Line, Row, ToggleButton } from "@once-ui-system/core";
 
-import { routes, display, person, about, blog, work, gallery } from "@/resources";
+import { routes, display, person } from "@/resources";
 import { ThemeToggle } from "./ThemeToggle";
+import { LanguageSwitcher } from "./LanguageSwitcher";
+import { getT, DEFAULT_LOCALE, Locale } from "@/i18n/translations";
 import styles from "./Header.module.scss";
 
 type TimeDisplayProps = {
   timeZone: string;
-  locale?: string; // Optionally allow locale, defaulting to 'en-GB'
+  locale?: string;
 };
 
 const TimeDisplay: React.FC<TimeDisplayProps> = ({ timeZone, locale = "en-GB" }) => {
@@ -44,10 +46,12 @@ export default TimeDisplay;
 
 interface HeaderProps {
   showBlog?: boolean;
+  locale?: Locale;
 }
 
-export const Header = ({ showBlog = true }: HeaderProps) => {
+export const Header = ({ showBlog = true, locale = DEFAULT_LOCALE }: HeaderProps) => {
   const pathname = usePathname() ?? "";
+  const t = getT(locale);
 
   return (
     <>
@@ -100,7 +104,7 @@ export const Header = ({ showBlog = true }: HeaderProps) => {
                     <ToggleButton
                       prefixIcon="person"
                       href="/about"
-                      label={about.label}
+                      label={t.nav.about}
                       selected={pathname === "/about"}
                     />
                   </Row>
@@ -119,7 +123,7 @@ export const Header = ({ showBlog = true }: HeaderProps) => {
                     <ToggleButton
                       prefixIcon="grid"
                       href="/work"
-                      label={work.label}
+                      label={t.nav.work}
                       selected={pathname.startsWith("/work")}
                     />
                   </Row>
@@ -138,7 +142,7 @@ export const Header = ({ showBlog = true }: HeaderProps) => {
                     <ToggleButton
                       prefixIcon="book"
                       href="/blog"
-                      label={blog.label}
+                      label={t.nav.blog}
                       selected={pathname.startsWith("/blog")}
                     />
                   </Row>
@@ -157,7 +161,7 @@ export const Header = ({ showBlog = true }: HeaderProps) => {
                     <ToggleButton
                       prefixIcon="gallery"
                       href="/gallery"
-                      label={gallery.label}
+                      label={t.nav.gallery}
                       selected={pathname.startsWith("/gallery")}
                     />
                   </Row>
@@ -176,6 +180,7 @@ export const Header = ({ showBlog = true }: HeaderProps) => {
                   <ThemeToggle />
                 </>
               )}
+              <LanguageSwitcher locale={locale} />
             </Row>
           </Row>
         </Row>

@@ -24,11 +24,11 @@ import {
   getCertifications,
 } from "@/sanity/queries";
 import { urlForImage } from "@/sanity/image";
-import { l, formatDateRange } from "@/sanity/locale";
+import { l, lBlock, formatDateRange } from "@/sanity/locale";
+import { cookies } from "next/headers";
+import { DEFAULT_LOCALE, LOCALE_COOKIE, Locale, getT } from "@/i18n/translations";
 
 export async function generateMetadata() {
-  const config = await getSiteConfig();
-  const name = config ? `${config.firstName} ${config.lastName}` : "";
   return Meta.generate({
     title: about.title,
     description: about.description,
@@ -39,6 +39,11 @@ export async function generateMetadata() {
 }
 
 export default async function About() {
+  const cookieStore = await cookies();
+  const locale = (cookieStore.get(LOCALE_COOKIE)?.value as Locale) ?? DEFAULT_LOCALE;
+  const t = getT(locale);
+  const dateLocale = locale === "es" ? "es-GT" : "en-US";
+
   const [config, workExp, education, skills, certs] = await Promise.all([
     getSiteConfig(),
     getWorkExperience(),
@@ -48,20 +53,20 @@ export default async function About() {
   ]);
 
   const name = config ? `${config.firstName} ${config.lastName}` : "";
-  const role = l(config?.role);
+  const role = l(config?.role, locale);
   const avatarUrl = config?.avatar
     ? urlForImage(config.avatar).width(300).height(300).url()
     : "";
   const calendarUrl = config?.calendarUrl;
   const socialLinks = config?.socialLinks ?? [];
-  const hasBio = !!(config?.bio?.en?.length);
+  const hasBio = !!(config?.bio?.en?.length || config?.bio?.es?.length);
 
   const structure = [
     { title: about.intro.title, display: hasBio, items: [] },
-    { title: about.work.title, display: workExp.length > 0, items: workExp.map((e) => e.company) },
-    { title: about.studies.title, display: education.length > 0, items: education.map((e) => e.institution) },
-    { title: about.technical.title, display: skills.length > 0, items: [] },
-    ...(certs.length > 0 ? [{ title: "Certifications", display: true, items: [] }] : []),
+    { title: t.about.work, display: workExp.length > 0, items: workExp.map((e) => e.company) },
+    { title: t.about.studies, display: education.length > 0, items: education.map((e) => e.institution) },
+    { title: t.about.technical, display: skills.length > 0, items: [] },
+    ...(certs.length > 0 ? [{ title: t.about.certifications, display: true, items: [] }] : []),
   ];
 
   return (
@@ -147,7 +152,7 @@ export default async function About() {
                 style={{ backdropFilter: "blur(var(--static-space-1))" }}
               >
                 <Icon paddingLeft="12" name="calendar" onBackground="brand-weak" />
-                <Row paddingX="8">Schedule a call</Row>
+                <Row paddingX="8">{t.about.scheduleCall}</Row>
                 <IconButton
                   href={calendarUrl}
                   data-border="rounded"
@@ -206,17 +211,17 @@ export default async function About() {
           </Column>
 
           {/* ── Bio ── */}
-          {hasBio && config?.bio?.en && (
+          {hasBio && (
             <Column textVariant="body-default-l" fillWidth gap="m" marginBottom="xl">
-              <PortableTextRenderer value={config.bio.en} />
+              <PortableTextRenderer value={lBlock(config?.bio, locale)} />
             </Column>
           )}
 
           {/* ── Work Experience ── */}
           {workExp.length > 0 && (
             <>
-              <Heading as="h2" id={about.work.title} variant="display-strong-s" marginBottom="m">
-                {about.work.title}
+              <Heading as="h2" id={t.about.work} variant="display-strong-s" marginBottom="m">
+                {t.about.work}
               </Heading>
               <Column fillWidth gap="l" marginBottom="40">
                 {workExp.map((exp) => (
@@ -224,22 +229,22 @@ export default async function About() {
                     <Row fillWidth horizontal="between" vertical="end" marginBottom="4">
                       <Text id={exp.company} variant="heading-strong-l">{exp.company}</Text>
                       <Text variant="heading-default-xs" onBackground="neutral-weak">
-                        {formatDateRange(exp.startDate, exp.endDate)}
+                        {formatDateRange(exp.startDate, exp.endDate, locale)}
                       </Text>
                     </Row>
                     <Text variant="body-default-s" onBackground="brand-weak" marginBottom="m">
-                      {l(exp.role)}
+                      {l(exp.role, locale)}
                     </Text>
-                    {exp.description?.en && exp.description.en.length > 0 && (
+                    {lBlock(exp.description, locale).length > 0 && (
                       <Column marginBottom="s">
-                        <PortableTextRenderer value={exp.description.en} />
+                        <PortableTextRenderer value={lBlock(exp.description, locale)} />
                       </Column>
                     )}
                     {exp.achievements && exp.achievements.length > 0 && (
                       <Column as="ul" gap="16">
                         {exp.achievements.map((achievement, i) => (
                           <Text as="li" variant="body-default-m" key={i}>
-                            {l(achievement)}
+                            {l(achievement, locale)}
                           </Text>
                         ))}
                       </Column>
@@ -260,22 +265,22 @@ export default async function About() {
           {/* ── Education ── */}
           {education.length > 0 && (
             <>
-              <Heading as="h2" id={about.studies.title} variant="display-strong-s" marginBottom="m">
-                {about.studies.title}
+              <Heading as="h2" id={t.about.studies} variant="display-strong-s" marginBottom="m">
+                {t.about.studies}
               </Heading>
               <Column fillWidth gap="l" marginBottom="40">
                 {education.map((edu) => (
                   <Column key={edu._id} fillWidth gap="4">
                     <Text id={edu.institution} variant="heading-strong-l">{edu.institution}</Text>
                     <Text variant="body-default-m" onBackground="neutral-weak">
-                      {l(edu.degree)}
+                      {l(edu.degree, locale)}
                     </Text>
                     <Text variant="heading-default-xs" onBackground="neutral-weak">
-                      {formatDateRange(edu.startDate, edu.endDate)}
+                      {formatDateRange(edu.startDate, edu.endDate, locale)}
                     </Text>
-                    {edu.description?.en && edu.description.en.length > 0 && (
+                    {lBlock(edu.description, locale).length > 0 && (
                       <Column marginTop="s">
-                        <PortableTextRenderer value={edu.description.en} />
+                        <PortableTextRenderer value={lBlock(edu.description, locale)} />
                       </Column>
                     )}
                   </Column>
@@ -289,11 +294,11 @@ export default async function About() {
             <>
               <Heading
                 as="h2"
-                id={about.technical.title}
+                id={t.about.technical}
                 variant="display-strong-s"
                 marginBottom="40"
               >
-                {about.technical.title}
+                {t.about.technical}
               </Heading>
               <Column fillWidth gap="l" marginBottom="40">
                 {Object.entries(
@@ -310,7 +315,7 @@ export default async function About() {
                     </Text>
                     <Row wrap gap="8">
                       {categorySkills.map((skill) => (
-                        <Tag key={skill._id} size="l">{l(skill.name)}</Tag>
+                        <Tag key={skill._id} size="l">{l(skill.name, locale)}</Tag>
                       ))}
                     </Row>
                   </Column>
@@ -322,16 +327,16 @@ export default async function About() {
           {/* ── Certifications ── */}
           {certs.length > 0 && (
             <>
-              <Heading as="h2" id="Certifications" variant="display-strong-s" marginBottom="m">
-                Certifications
+              <Heading as="h2" id={t.about.certifications} variant="display-strong-s" marginBottom="m">
+                {t.about.certifications}
               </Heading>
               <Column fillWidth gap="l" marginBottom="40">
                 {certs.map((cert) => (
                   <Column key={cert._id} fillWidth gap="4">
                     <Row horizontal="between" vertical="end">
-                      <Text variant="heading-strong-l">{l(cert.name)}</Text>
+                      <Text variant="heading-strong-l">{l(cert.name, locale)}</Text>
                       <Text variant="heading-default-xs" onBackground="neutral-weak">
-                        {new Date(cert.issuedDate).toLocaleDateString("en-US", {
+                        {new Date(cert.issuedDate).toLocaleDateString(dateLocale, {
                           month: "short",
                           year: "numeric",
                         })}
@@ -347,7 +352,7 @@ export default async function About() {
                           size="s"
                           variant="tertiary"
                           suffixIcon="externalLink"
-                          label="Verify"
+                          label={t.about.verify}
                         />
                       )}
                     </Row>

@@ -4,6 +4,8 @@ import { Posts } from "@/components/blog/Posts";
 import { baseURL, blog, person } from "@/resources";
 import { getSiteConfig } from "@/sanity/queries";
 import { urlForImage } from "@/sanity/image";
+import { cookies } from "next/headers";
+import { DEFAULT_LOCALE, LOCALE_COOKIE, Locale, getT } from "@/i18n/translations";
 
 export async function generateMetadata() {
   return Meta.generate({
@@ -16,6 +18,10 @@ export async function generateMetadata() {
 }
 
 export default async function Blog() {
+  const cookieStore = await cookies();
+  const locale = (cookieStore.get(LOCALE_COOKIE)?.value as Locale) ?? DEFAULT_LOCALE;
+  const t = getT(locale);
+
   const config = await getSiteConfig();
   const authorName = config ? `${config.firstName} ${config.lastName}` : person.name;
   const authorAvatarUrl = config?.avatar
@@ -45,7 +51,7 @@ export default async function Blog() {
         <Posts range={[2, 3]} columns="2" thumbnail direction="column" />
         {config?.showNewsletter && <Mailchimp marginBottom="l" />}
         <Heading as="h2" variant="heading-strong-xl" marginLeft="l">
-          Earlier posts
+          {t.blog.earlierPosts}
         </Heading>
         <Posts range={[4]} columns="2" />
       </Column>
