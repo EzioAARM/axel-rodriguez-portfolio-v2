@@ -13,9 +13,11 @@ import {
   RevealFx,
   SpacingToken,
 } from "@once-ui-system/core";
+import NextTopLoader from "nextjs-toploader";
 import { Footer, Header, RouteGuard, Providers } from "@/components";
 import { baseURL, effects, fonts, style, dataStyle, home } from "@/resources";
 import { getSiteConfig } from "@/sanity/queries";
+import { notFound } from "next/navigation";
 import { DEFAULT_LOCALE, LOCALES, Locale } from "@/i18n/translations";
 
 export function generateStaticParams() {
@@ -40,9 +42,8 @@ export default async function LocaleLayout({
   params: Promise<{ locale: string }>;
 }>) {
   const { locale: rawLocale } = await params;
-  const locale: Locale = (LOCALES as readonly string[]).includes(rawLocale)
-    ? (rawLocale as Locale)
-    : DEFAULT_LOCALE;
+  if (!(LOCALES as readonly string[]).includes(rawLocale)) notFound();
+  const locale = rawLocale as Locale;
 
   const config = await getSiteConfig();
   const showBlog = config?.showBlog ?? true;
@@ -115,6 +116,7 @@ export default async function LocaleLayout({
         />
       </head>
       <Providers>
+        <NextTopLoader color="var(--brand-solid-strong)" height={3} showSpinner={false} />
         <Column
           suppressHydrationWarning
           as="body"

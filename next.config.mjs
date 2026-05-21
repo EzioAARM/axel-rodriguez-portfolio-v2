@@ -31,9 +31,7 @@ const nextConfig = {
   async headers() {
     return [
       {
-        // Apply security headers to all routes except the Sanity Studio,
-        // which manages its own security and uses inline scripts/styles.
-        source: "/((?!studio).*)",
+        source: "/(.*)",
         headers: securityHeaders,
       },
     ];

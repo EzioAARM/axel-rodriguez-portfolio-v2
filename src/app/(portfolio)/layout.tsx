@@ -13,6 +13,7 @@ import {
   RevealFx,
   SpacingToken,
 } from "@once-ui-system/core";
+import NextTopLoader from "nextjs-toploader";
 import { Footer, Header, RouteGuard, Providers } from "@/components";
 import { baseURL, effects, fonts, style, dataStyle, home } from "@/resources";
 import { getSiteConfig } from "@/sanity/queries";
@@ -111,6 +112,7 @@ export default async function RootLayout({
         />
       </head>
       <Providers>
+        <NextTopLoader color="var(--brand-solid-strong)" height={3} showSpinner={false} />
         <Column
           suppressHydrationWarning
           as="body"
