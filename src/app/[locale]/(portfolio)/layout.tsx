@@ -17,7 +17,7 @@ import NextTopLoader from "nextjs-toploader";
 import { Footer, Header, RouteGuard, Providers } from "@/components";
 import { baseURL, effects, fonts, style, dataStyle, home } from "@/resources";
 import { getSiteConfig } from "@/sanity/queries";
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 import { DEFAULT_LOCALE, LOCALES, Locale } from "@/i18n/translations";
 
 export function generateStaticParams() {
@@ -42,7 +42,7 @@ export default async function LocaleLayout({
   params: Promise<{ locale: string }>;
 }>) {
   const { locale: rawLocale } = await params;
-  if (!(LOCALES as readonly string[]).includes(rawLocale)) notFound();
+  if (!(LOCALES as readonly string[]).includes(rawLocale)) redirect("/not-found-page");
   const locale = rawLocale as Locale;
 
   const config = await getSiteConfig();

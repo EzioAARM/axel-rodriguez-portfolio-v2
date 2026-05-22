@@ -27,8 +27,8 @@ export default defineConfig({
   title: "Axel Portfolio",
   basePath: "/studio",
 
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
-  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET ?? "production",
+  projectId: "fthgxzlj",
+  dataset: "production",
 
   plugins: [
     structureTool({
