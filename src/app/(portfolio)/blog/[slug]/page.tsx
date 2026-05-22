@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import {
-  Meta,
   Schema,
   Column,
   Heading,
@@ -13,7 +12,7 @@ import {
   Line,
   Tag,
 } from "@once-ui-system/core";
-import { baseURL, about, blog } from "@/resources";
+import { baseURL, about, blog, generateMeta } from "@/resources";
 import { formatDate } from "@/utils/formatDate";
 import { ScrollToHash } from "@/components";
 import { PortableTextRenderer } from "@/components/sanity/PortableTextRenderer";
@@ -38,7 +37,7 @@ export async function generateMetadata({
   const { slug } = await params;
   const post = await getBlogPostBySlug(slug);
   if (!post) return {};
-  return Meta.generate({
+  return generateMeta({
     title: l(post.title),
     description: l(post.summary),
     baseURL: baseURL,

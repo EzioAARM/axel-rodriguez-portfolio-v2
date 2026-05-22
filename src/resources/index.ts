@@ -24,3 +24,5 @@ export {
   effects,
   dataStyle,
 } from "./once-ui.config";
+
+export { generateMeta } from "./generateMeta";

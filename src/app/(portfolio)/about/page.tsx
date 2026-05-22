@@ -7,11 +7,10 @@ import {
   IconButton,
   Tag,
   Text,
-  Meta,
   Schema,
   Row,
 } from "@once-ui-system/core";
-import { baseURL, about } from "@/resources";
+import { baseURL, about, generateMeta } from "@/resources";
 import TableOfContents from "@/components/about/TableOfContents";
 import styles from "@/components/about/about.module.scss";
 import { PortableTextRenderer } from "@/components/sanity/PortableTextRenderer";
@@ -28,7 +27,7 @@ import { l, lBlock, formatDateRange } from "@/sanity/locale";
 import { DEFAULT_LOCALE, getT } from "@/i18n/translations";
 
 export async function generateMetadata() {
-  return Meta.generate({
+  return generateMeta({
     title: about.title,
     description: about.description,
     baseURL: baseURL,

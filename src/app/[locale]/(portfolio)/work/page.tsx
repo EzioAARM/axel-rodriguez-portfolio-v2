@@ -1,5 +1,5 @@
-import { Column, Heading, Meta, Schema } from "@once-ui-system/core";
-import { baseURL, about, person, work } from "@/resources";
+import { Column, Heading, Schema } from "@once-ui-system/core";
+import { baseURL, about, person, work, generateMeta } from "@/resources";
 import { Projects } from "@/components/work/Projects";
 import { DEFAULT_LOCALE, LOCALES, Locale } from "@/i18n/translations";
 
@@ -8,7 +8,7 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata() {
-  return Meta.generate({
+  return generateMeta({
     title: work.title,
     description: work.description,
     baseURL: baseURL,
