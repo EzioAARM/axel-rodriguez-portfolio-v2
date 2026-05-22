@@ -1,14 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { routes, protectedRoutes } from "@/resources";
 import { LOCALES } from "@/i18n/translations";
 import { Flex, Spinner, Button, Heading, Column, PasswordInput } from "@once-ui-system/core";
-import NotFound from "@/app/not-found";
 
 interface RouteGuardProps {
   children: React.ReactNode;
+}
+
+function RedirectTo404() {
+  const router = useRouter();
+  useEffect(() => { router.replace("/not-found-page"); }, [router]);
+  return null;
 }
 
 const RouteGuard: React.FC<RouteGuardProps> = ({ children }) => {
@@ -96,7 +101,7 @@ const RouteGuard: React.FC<RouteGuardProps> = ({ children }) => {
   }
 
   if (!isRouteEnabled) {
-    return <NotFound />;
+    return <RedirectTo404 />;
   }
 
   if (isPasswordRequired && !isAuthenticated) {

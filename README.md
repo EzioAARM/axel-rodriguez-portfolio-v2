@@ -9,7 +9,7 @@ Built with [magic-portfolio](https://github.com/once-ui-system/magic-portfolio) 
 
 - **Framework**: Next.js 16 + React 19 + TypeScript
 - **UI**: [Once UI](https://once-ui.com) (free tier)
-- **CMS**: Sanity v3 (hosted, free tier) — Studio at `/studio`
+- **CMS**: Sanity v3 (hosted, free tier) — Studio at [sanity.io/manage](https://sanity.io/manage)
 - **Styling**: SCSS Modules + Once UI design tokens
 - **Fonts**: Chalet (headings) + Space Mono (display) + Inter (body)
 
@@ -55,7 +55,7 @@ npm run dev
 ```
 
 - Portfolio: [http://localhost:3000](http://localhost:3000)
-- Sanity Studio (CMS admin): [http://localhost:3000/studio](http://localhost:3000/studio)
+- Sanity Studio (CMS admin): [https://sanity.io/manage](https://sanity.io/manage)
 
 ## Available Scripts
 
@@ -90,7 +90,7 @@ npm run biome-write  # format all files with Biome
     │   │   └── (portfolio)/  # Prefixed routes (/en/*, /es/*)
     │   │       ├── page.tsx  # Same pages, locale passed as param
     │   │       └── ...
-    │   └── studio/           # Sanity Studio (admin panel)
+    │   └── api/              # OG image, RSS, auth endpoints
     ├── components/           # Shared UI components (built with Once UI)
     │   ├── home/             # Home-page specific (ServiceCard styles)
     │   ├── work/             # Projects card + StopPropagation helper
@@ -118,13 +118,11 @@ npm run biome-write  # format all files with Biome
 | `/work` | Projects — personal + professional, 2-column horizontal cards |
 | `/blog` | Blog — bilingual posts (EN/ES) |
 | `/gallery` | Gallery — masonry grid with tag + location filters and lightbox |
-| `/studio` | Sanity Studio — content management admin panel |
-
 All routes are also available with a locale prefix: `/en/*` and `/es/*`.
 
 ## Content Management
 
-All content is managed from the Sanity Studio at `/studio` (or [sanity.io/manage](https://sanity.io/manage)).
+All content is managed from [sanity.io/manage](https://sanity.io/manage).
 
 ### Content types
 

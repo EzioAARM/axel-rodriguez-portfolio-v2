@@ -29,3 +29,12 @@
     min-height: unset;
   }
 }
+
+.stretchedLink {
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+}

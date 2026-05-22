@@ -42,6 +42,5 @@ function redirectToHome(request: NextRequest) {
 }
 
 export const config = {
-  // Run on all routes except static assets, _next internals, and the studio
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|studio).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };
