@@ -1,6 +1,6 @@
-import { Flex, Meta, Schema } from "@once-ui-system/core";
+import { Flex, Schema } from "@once-ui-system/core";
 import GalleryView from "@/components/gallery/GalleryView";
-import { baseURL, gallery, person } from "@/resources";
+import { baseURL, gallery, person, generateMeta } from "@/resources";
 import { getGalleryImages, getSiteConfig } from "@/sanity/queries";
 import { urlForImage } from "@/sanity/image";
 import { DEFAULT_LOCALE, LOCALES, Locale, getT } from "@/i18n/translations";
@@ -10,7 +10,7 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata() {
-  return Meta.generate({
+  return generateMeta({
     title: gallery.title,
     description: gallery.description,
     baseURL: baseURL,

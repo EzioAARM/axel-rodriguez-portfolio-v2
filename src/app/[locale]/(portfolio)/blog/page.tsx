@@ -1,7 +1,7 @@
-import { Column, Heading, Meta, Schema } from "@once-ui-system/core";
+import { Column, Heading, Schema } from "@once-ui-system/core";
 import { Mailchimp } from "@/components";
 import { Posts } from "@/components/blog/Posts";
-import { baseURL, blog, person } from "@/resources";
+import { baseURL, blog, person, generateMeta } from "@/resources";
 import { getSiteConfig } from "@/sanity/queries";
 import { urlForImage } from "@/sanity/image";
 import { DEFAULT_LOCALE, LOCALES, Locale, getT } from "@/i18n/translations";
@@ -11,7 +11,7 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata() {
-  return Meta.generate({
+  return generateMeta({
     title: blog.title,
     description: blog.description,
     baseURL: baseURL,

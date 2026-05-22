@@ -8,14 +8,13 @@ import {
   Background,
   Column,
   Flex,
-  Meta,
   opacity,
   RevealFx,
   SpacingToken,
 } from "@once-ui-system/core";
 import NextTopLoader from "nextjs-toploader";
 import { Footer, Header, RouteGuard, Providers } from "@/components";
-import { baseURL, effects, fonts, style, dataStyle, home } from "@/resources";
+import { baseURL, effects, fonts, style, dataStyle, home, generateMeta } from "@/resources";
 import { getSiteConfig } from "@/sanity/queries";
 import { redirect } from "next/navigation";
 import { DEFAULT_LOCALE, LOCALES, Locale } from "@/i18n/translations";
@@ -25,7 +24,7 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata() {
-  return Meta.generate({
+  return generateMeta({
     title: home.title,
     description: home.description,
     baseURL: baseURL,
