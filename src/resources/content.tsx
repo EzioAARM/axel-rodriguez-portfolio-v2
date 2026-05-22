@@ -21,7 +21,7 @@ const social: Social = [];
 
 const home: Home = {
   path: "/",
-  image: "/images/og/home.jpg",
+  image: `/api/og/generate?title=${encodeURIComponent("Axel Rodriguez – Portfolio")}`,
   label: "Home",
   title: `${person.name} – Portfolio`,
   description: `Portfolio of ${person.name}, ${person.role} based in Guatemala.`,
