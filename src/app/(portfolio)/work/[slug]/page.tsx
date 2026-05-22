@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import {
-  Meta,
   Schema,
   Button,
   Column,
@@ -12,7 +11,7 @@ import {
   Line,
   Tag,
 } from "@once-ui-system/core";
-import { baseURL, about, work } from "@/resources";
+import { baseURL, about, work, generateMeta } from "@/resources";
 import { ScrollToHash } from "@/components";
 import { PortableTextRenderer } from "@/components/sanity/PortableTextRenderer";
 import { Projects } from "@/components/work/Projects";
@@ -35,7 +34,7 @@ export async function generateMetadata({
   const { slug } = await params;
   const project = await getProjectBySlug(slug);
   if (!project) return {};
-  return Meta.generate({
+  return generateMeta({
     title: l(project.title),
     description: l(project.summary),
     baseURL: baseURL,

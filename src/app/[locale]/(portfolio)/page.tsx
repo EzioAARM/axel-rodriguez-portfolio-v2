@@ -8,12 +8,11 @@ import {
   Badge,
   Row,
   Schema,
-  Meta,
   Line,
   Grid,
   Icon,
 } from "@once-ui-system/core";
-import { home, about, person, baseURL, routes } from "@/resources";
+import { home, about, person, baseURL, routes, generateMeta } from "@/resources";
 import { Mailchimp } from "@/components";
 import { Projects } from "@/components/work/Projects";
 import { Posts } from "@/components/blog/Posts";
@@ -28,7 +27,7 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata() {
-  return Meta.generate({
+  return generateMeta({
     title: home.title,
     description: home.description,
     baseURL: baseURL,
